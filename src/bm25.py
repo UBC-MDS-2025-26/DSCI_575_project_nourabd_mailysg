@@ -1,58 +1,64 @@
 from langchain_community.retrievers import BM25Retriever
 import pickle
 import pandas as pd
+from tokenizer import create_documents, tokenize
 
-def bm25_search(query):
 
-    # Retrieve document list
-    with open("notebooks/small_doc_list.pkl", "rb") as f:
-        doc_list = pickle.load(f)
+def load_documents(parquet_path):
+    doc_list = create_documents()
+    return doc_list
 
-    # Fit BM25 retriever
-    retriever = BM25Retriever.from_documents(doc_list, k=5)
+
+def build_index(doc_list, k=5):
+     # Fit BM25 retriever
+    retriever = BM25Retriever.from_documents(doc_list, k)
 
     # Retrieve index
     bm25_index = retriever.vectorizer
 
+    return bm25_index
+
+def save_index(bm25_index, path):
     #Save index as pickle file
-    with open('bm25_index.pkl', 'wb') as f:
+    with open(f'{path}/bm25_index.pkl', 'wb') as f:
         pickle.dump(bm25_index, f)
+    print(f"Index saved to {path}")
 
-    # Get tokenized corpus
-    raw_corpus = [document.page_content for document in doc_list]
-    tokenized_corpus = [text.split() for text in raw_corpus] # Using the default Langchain tokenizer
+def load_index(path):
+    #Load index as pickle file
+    with open(f'{path}/bm25_index.pkl', 'rb') as f:
+        bm25_index = pickle.load(f)
+    print(f"Index loaded from {path}")
+    return bm25_index
 
-    # Save tokenized corpus as pickle
-    with open('tokenized_corpus.pkl', 'wb') as f:
-        pickle.dump(tokenized_corpus, f)
-
+def bm25_search(bm25_index, query):
     # Query search
-    tokenized_query = query.split()
+    tokenized_query = tokenize(query)
+  
+    # scores = bm25_index.get_scores(tokenized_query)
 
-    scores = bm25_index.get_scores(tokenized_query)
-
-    results_dict = {'score': [], 
-                  'item_title': [], 
-                  'features': [], 
-                  'description': [], 
-                  'store': [], 
-                  'categories': [],
-                  'item_type': [], 
-                  'review_title': [],
-                  'rated': [], 
-                  'date_first_available':[],
-                  'text': [],
-                  'average_rating': [], 
-                  'rating_number': [], 
-                  'price': []}
+    # results_dict = {'score': [], 
+    #               'item_title': [], 
+    #               'features': [], 
+    #               'description': [], 
+    #               'store': [], 
+    #               'categories': [],
+    #               'item_type': [], 
+    #               'review_title': [],
+    #               'rated': [], 
+    #               'date_first_available':[],
+    #               'text': [],
+    #               'average_rating': [], 
+    #               'rating_number': [], 
+    #               'price': []}
     
-    for document, score in zip(doc_list, scores):
-        results_dict['score'].append(score)
-        for (key,value) in document.metadata.items():
-            results_dict[key].append(value)
-    return pd.DataFrame(results_dict).sort_values('score', ascending=False)
+    # for document, score in zip(doc_list, scores):
+    #     results_dict['score'].append(score)
+    #     for (key,value) in document.metadata.items():
+    #         results_dict[key].append(value)
+    # return pd.DataFrame(results_dict).sort_values('score', ascending=False)
         
 
-example = bm25_search('nintendo switch screen protector')
+example = bm25_search('2','nintendo switch screen protector')
 print(example)
 
