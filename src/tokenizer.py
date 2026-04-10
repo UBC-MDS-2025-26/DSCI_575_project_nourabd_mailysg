@@ -62,10 +62,6 @@ def create_documents(parquet_path='data/processed/processed_data.parquet', doc_l
         # Add document to list                                                                                      
         doc_list.append(document)
 
-    # Save document list as a pickle file for further use
-    with open(doc_list_path, 'wb') as f:
-        pickle.dump(doc_list, f)
-
     # Return list of documents
     return doc_list
     
