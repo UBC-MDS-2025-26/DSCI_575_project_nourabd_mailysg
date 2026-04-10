@@ -16,7 +16,6 @@ def preprocess(text):
         - transform text to lowercase letters
         - removes all elements that aren't lowercase letters, numbers or whitespace
         - if the given text is a list, transforms it into a string
-    
     """
     if type(text) == list :
         processed_text = ''
