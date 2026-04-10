@@ -56,11 +56,12 @@ def create_documents(file):
                 "text" : record.text,
                 "average_rating": record.average_rating,
                 "rating_number" : record.rating_number,
-                "price" : record.price
+                "price" : record.price, 
+                "parent_asin": record.parent_asin
                 }
     )   
-    # Add document to list                                                                                      
-    doc_list.append(document)
+        # Add document to list                                                                                      
+        doc_list.append(document)
 
     # Save document list as a pickle file for further use
     with open('data/processed/doc_list.pkl', 'wb') as f:

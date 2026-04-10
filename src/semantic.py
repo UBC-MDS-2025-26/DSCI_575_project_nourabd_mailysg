@@ -5,29 +5,14 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.docstore.in_memory import InMemoryDocstore
 import faiss
 from save_to_df import results_to_df
+from tokenizer import create_documents
 
 
 def load_documents(parquet_path):
-    """Load parquet and wrap as LangChain Documents"""
-    df = pd.read_parquet(parquet_path)
-    print(f"Loaded {len(df)} rows")
-    
-    docs = [
-        Document(
-            page_content=f"{row['item_title']} {row['features']} {row['description']} {row['store']} {row['categories']} {row['item_type']} {row['rated']} {row['date_first_available']} {row['review_title']} {row['text']}",
-            metadata={
-                "item_title": row['item_title'],
-                "review_title": row['review_title'],
-                "average_rating": row['average_rating'],
-                "rating_number": row['rating_number'],
-                "price": row['price'],
-                "parent_asin": row['parent_asin']
-            }
-        )
-        for _, row in df.iterrows()
-    ]
-    print(f"Created {len(docs)} documents")
-    return docs
+    """Load LangChain documents from parquet"""
+    doc_list = create_documents(parquet_path)
+    print(f"Loaded {len(doc_list)} documents")
+    return doc_list
 
 
 def build_index(docs, model_name='all-MiniLM-L6-v2', batch_size=5000):
