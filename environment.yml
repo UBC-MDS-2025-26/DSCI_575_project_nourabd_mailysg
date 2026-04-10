@@ -15,5 +15,6 @@ dependencies:
     - langchain
     - langchain-community
     - nltk
+    - langchain-huggingface
 
 
