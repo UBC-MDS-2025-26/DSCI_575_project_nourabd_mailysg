@@ -4,6 +4,7 @@ from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.docstore.in_memory import InMemoryDocstore
 import faiss
+from save_to_df import results_to_df
 
 
 def load_documents(parquet_path):
@@ -80,26 +81,7 @@ def semantic_search(vector_store, query, k=5):
         print(f"Review: {doc.page_content[:150]}...")
     return results
 
-
-# utils.py
-def results_to_df(query, results, top_n=3):
-    rows = []
-    seen_asins = set()
-    for doc, score in results:
-        title = doc.metadata['item_title']
-        if title not in seen_asins:
-            seen_asins.add(title)
-            rows.append({
-                "query": query, 
-                "Product Title": title,
-                "Review": doc.page_content[:200],
-                "Rating": doc.metadata['average_rating'],
-                "Score": round(score, 4)
-            })
-        if len(rows) == top_n:
-            break
-    return pd.DataFrame(rows)
-
+#running analysis on 10 queries
 
 if __name__ == "__main__":
     queries = [
@@ -119,9 +101,10 @@ if __name__ == "__main__":
     ]
 
     # build and save index (run once)
-    # docs = load_documents('data/processed/processed_data.parquet')
-    # vector_store, _ = build_index(docs)
-    # save_index(vector_store, 'data/faiss_index')
+    # comment out these lines once you have generated faiss_index data 
+    docs = load_documents('data/processed/processed_data.parquet')
+    vector_store, _ = build_index(docs)
+    save_index(vector_store, 'data/faiss_index')
 
     vector_store = load_index('data/faiss_index')
 
@@ -135,4 +118,4 @@ if __name__ == "__main__":
     # save to csv
     final_df = pd.concat(all_results)
     final_df.to_csv('results/semantic_results.csv', index=False)
-    print("Results saved to results/semantic_results.csv")
+    print("10 query results saved to results/semantic_results.csv")
