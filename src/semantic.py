@@ -77,7 +77,6 @@ def semantic_search(vector_store, query, k=5):
         print(f"\nResult {i+1} [SIM={score:.4f}]")
         print(f"Title:  {doc.metadata['item_title']}")
         print(f"Rating: {doc.metadata['average_rating']}")
-        print(f"Price:  {doc.metadata['price']}")
         print(f"Review: {doc.page_content[:150]}...")
     return results
 
@@ -85,17 +84,16 @@ def semantic_search(vector_store, query, k=5):
 # utils.py
 def results_to_df(query, results, top_n=3):
     rows = []
-    seen_titles = set()
+    seen_asins = set()
     for doc, score in results:
         title = doc.metadata['item_title']
-        if title not in seen_titles:
-            seen_titles.add(title)
+        if title not in seen_asins:
+            seen_asins.add(title)
             rows.append({
                 "query": query, 
                 "Product Title": title,
                 "Review": doc.page_content[:200],
                 "Rating": doc.metadata['average_rating'],
-                "Price": doc.metadata['price'],
                 "Score": round(score, 4)
             })
         if len(rows) == top_n:
