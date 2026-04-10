@@ -65,6 +65,9 @@ def create_documents(file):
     # Save document list as a pickle file for further use
     with open('data/processed/doc_list.pkl', 'wb') as f:
         pickle.dump(doc_list, f)
+
+    # Return list of documents
+    return doc_list
     
 
 
