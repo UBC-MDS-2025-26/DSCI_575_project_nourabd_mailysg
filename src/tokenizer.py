@@ -8,10 +8,9 @@ Functions:
 import pickle
 import pandas as pd
 from langchain_core.documents import Document
-import os
 
 
-def create_documents(file):
+def create_documents(parquet_path='data/processed/processed_data.parquet', doc_list_path='data/processed/doc_list.pkl'):
     """
     This function tokenizes the given text into Langchain documents.
 
@@ -32,7 +31,7 @@ def create_documents(file):
     """
 
     # Read in the parquet file
-    df = pd.read_parquet(file)
+    df = pd.read_parquet(parquet_path)
 
     # Create list to store documents
     doc_list = []
@@ -56,39 +55,30 @@ def create_documents(file):
                 "text" : record.text,
                 "average_rating": record.average_rating,
                 "rating_number" : record.rating_number,
-                "price" : record.price
+                "price" : record.price,
+                "parent_asin" : record.parent_asin
                 }
     )   
-    # Add document to list                                                                                      
-    doc_list.append(document)
+        # Add document to list                                                                                      
+        doc_list.append(document)
 
     # Save document list as a pickle file for further use
-    with open('data/processed/doc_list.pkl', 'wb') as f:
+    with open(doc_list_path, 'wb') as f:
         pickle.dump(doc_list, f)
 
     # Return list of documents
     return doc_list
     
-
-
-
-def tokenize():
+def tokenize(text):
     """Tokenize given corpus using default Langchain method"""
-
-    # Check if document list already exists
-    if not os.path.isfile('data/processed/doc_list.pkl') :
-        create_documents('data/processed/processed_data.parquet')
-    
-    # Open document list 
-    with open("data/processed/doc_list.pkl", "rb") as f:
-        doc_list = pickle.load(f)
-
-    # Tokenize corpus using the default Langchain tokenizer
-    raw_corpus = [document.page_content for document in doc_list]
-    tokenized_corpus = [text.split() for text in raw_corpus] 
+    if isinstance(text, Document):
+        text = [document.page_content for document in text]
+    tokenized_corpus = [token.split() for token in text] 
+    return tokenized_corpus
   
-    # Save tokenized corpus as pickle
+    
+def save_tokenized_corpus(tokenized_corpus):
+    """Save tokenized corpus"""
     with open('data/processed/tokenized_corpus.pkl', 'wb') as f:
         pickle.dump(tokenized_corpus, f)
-
 
