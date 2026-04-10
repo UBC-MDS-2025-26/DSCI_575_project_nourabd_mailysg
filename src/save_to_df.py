@@ -2,7 +2,7 @@ import pandas as pd
 
 
 def results_to_df(query, results, top_n=5):
-    """Convert search results to deduplicated dataframe"""
+    """Convert search results to dataframe, while accounting for duplicate products."""
     rows = []
     seen_asins = set()
     for doc, score in results:
