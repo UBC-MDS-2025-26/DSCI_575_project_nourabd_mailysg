@@ -11,10 +11,11 @@ def results_to_df(query, results, top_n=5):
             seen_asins.add(asin)
             rows.append({
                 "query": query,
-                "item_title": doc.metadata['item_title'],
-                "review": doc.page_content[:200],
-                "rating": doc.metadata['average_rating'],
-                "score": round(score, 4)
+                "Product title": doc.metadata['item_title'],
+                "Item type": doc.metadata['item_type'],
+                "Review": doc.metadata['text'][:200],
+                "Rating": doc.metadata['average_rating'],
+                "Score": round(score, 4)
             })
         if len(rows) == top_n:
             break
