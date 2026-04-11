@@ -13,8 +13,8 @@ Functions:
 from langchain_community.retrievers import BM25Retriever
 import pickle
 import pandas as pd
-from tokenizer import create_documents, tokenize
-from save_to_df import results_to_df
+from .tokenizer import create_documents, tokenize
+from .save_to_df import results_to_df
 
 def load_documents(parquet_path):
     """Load document list needed for search"""
