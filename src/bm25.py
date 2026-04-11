@@ -19,15 +19,17 @@ from save_to_df import results_to_df
 def load_documents(parquet_path):
     """Load document list needed for search"""
     doc_list = create_documents(parquet_path)
+    print("Document list loaded")
     return doc_list
 
 
 def build_index(doc_list, k=5):
     """Build the BM25 index"""
     retriever = BM25Retriever.from_documents(doc_list)
-
+    print("Building index")
     # Retrieve index
     bm25_index = retriever.vectorizer
+    print("Completed index build")
     return bm25_index
 
 def save_index(bm25_index,path):
@@ -43,14 +45,14 @@ def load_index(path):
     print(f"Index loaded from {path}")
     return bm25_index
 
-def bm25_search(bm25_index, query, doc_list):
+def bm25_search(bm25_index, query, doc_list, count, query_nb):
     """Implement BM25 search on given query"""
     tokenized_query = tokenize(query)
-  
+    
     scores = bm25_index.get_scores(tokenized_query)
 
     results_dict = sorted(zip(doc_list, scores), key=lambda x: x[1], reverse=True)
-
+    print(f"{count}/{query_nb} queries searched")
     return results_dict
        
 
@@ -81,11 +83,15 @@ if __name__ == "__main__":
 
     # run queries and save results
     all_results = []
+    count = 1
+    query_nb = len(queries)
     for query in queries:
-        results = bm25_search(bm25_index, query, docs)
+        results = bm25_search(bm25_index, query, docs, count, query_nb)
+        count += 1
         df = results_to_df(query, results, top_n=5)
         all_results.append(df)
 
-final_df = pd.concat(all_results)
-final_df.to_csv('results/bm25_results.csv', index=False)
-print("10 query results saved to results/bm25_results.csv")
+    # Save to csv
+    final_df = pd.concat(all_results)
+    final_df.to_csv('results/bm25_results.csv', index=False)
+    print("10 query results saved to results/bm25_results.csv")
