@@ -69,7 +69,9 @@ def tokenize(text):
     """Tokenize given corpus using default Langchain method"""
     if isinstance(text, Document):
         text = [document.page_content for document in text]
-    tokenized_corpus = [token.split() for token in text] 
+        tokenized_corpus = [token.split() for token in text] 
+    else:
+        tokenized_corpus = text.split()
     return tokenized_corpus
   
     
