@@ -5,10 +5,15 @@ import os
 import pickle
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from src.semantic import load_index, semantic_search
+from src.bm25 import load_index as load_bm25_index
+from src.bm25 import bm25_search
 from src.save_to_df import results_to_df
+from src.tokenizer import create_documents
+from langchain_core.documents import Document
+from langchain_community.retrievers import BM25Retriever
 
 st.set_page_config(page_title="Video Game Search", layout="wide")
-st.title("\U0001F3AE Video Game Product Search")
+st.title("\U0001F3AE Amazon Video Game Product Search")
 
 # load index on demand - separately depending on which radio button selected due to RAM restrictions
 @st.cache_resource
@@ -17,12 +22,40 @@ def get_semantic():
 
 @st.cache_resource
 def get_bm25():
-    with open('data/processed/bm25_index/bm25_index.pkl', 'rb') as f:
-        bm25_index = pickle.load(f)
-    # load only needed cols to avoid RAM crash
-    df = pd.read_parquet('data/processed/processed_data.parquet', 
-                         columns=['item_title', 'text', 'average_rating', 'parent_asin'])
-    return bm25_index, df
+     # OPTION 1: full data 
+
+    bm25_index = load_bm25_index('data/processed/bm25_index')
+    docs = create_documents('data/processed/processed_data.parquet')
+    
+    #OPTION 2: small sample (for low RAM machines), uncomment below code and comment out above code block
+
+    # df = pd.read_parquet('data/processed/processed_data.parquet').head(10000)
+    # docs = []
+    # for record in df.itertuples(index=True):
+    #     document = Document(
+    #         page_content=f"{record.item_title} {record.features} {record.description} {record.store} {record.categories} {record.item_type} {record.rated} {record.date_first_available} {record.review_title} {record.text}",
+    #         metadata={
+    #             "item_title": record.item_title,
+    #             "features": record.features,
+    #             "description": record.description,
+    #             "store": record.store,
+    #             "categories": record.categories,
+    #             "item_type": record.item_type,
+    #             "review_title": record.review_title,
+    #             "rated": record.rated,
+    #             "date_first_available": record.date_first_available,
+    #             "text": record.text,
+    #             "average_rating": record.average_rating,
+    #             "rating_number": record.rating_number,
+    #             "price": record.price,
+    #             "parent_asin": record.parent_asin
+    #         }
+    #     )
+    #     docs.append(document)
+    # retriever = BM25Retriever.from_documents(docs, k=3) #rebuilding index with smaller sample of docs
+    # bm25_index = retriever.vectorizer
+
+    return bm25_index, docs
 
 # star rating function
 def rating_to_stars(rating):
@@ -59,7 +92,7 @@ query = st.text_input("Search for a product...")
 # results from models
 if query:
     with st.spinner("Searching..."):
-
+        #semantic search
         if mode == "Semantic":
             vector_store = get_semantic()
             results = semantic_search(vector_store, query, k=50)
@@ -84,37 +117,27 @@ if query:
                             if st.button("\U0001F44E", key=f"sem_down_{i}"):
                                 save_feedback(query, row['Product title'], "thumbs_down", mode)
                                 st.success("Thanks for your feeback!")
-
+        #BM25
         elif mode == "BM25":
-            bm25_index, df = get_bm25()
-            tokenized_query = query.split()
-            scores = bm25_index.get_scores(tokenized_query) #computes scores on all 400k docs, causes memory crash especially 
-            #when semantic search index also loaded into memory already 
-            top_indices = scores.argsort()[::-1][:30]
-            seen_asins = set()
-            count = 0
-            for idx in top_indices:
-                row = df.iloc[idx]
-                asin = row['parent_asin']
-                if asin not in seen_asins:
-                    seen_asins.add(asin)
-                    with st.container(border=True):
-                        col1, col2 = st.columns([3, 1])
-                        with col1:
-                            st.markdown(f"### {row['item_title']}")
-                            st.write(str(row['text'])[:200])
-                        with col2:
-                            st.markdown(rating_to_stars(row['average_rating']), unsafe_allow_html=True)
-                            st.metric("Score", round(float(scores[idx]), 2))
-                            col_up, col_down = st.columns(2)
-                            with col_up:
-                                if st.button("\U0001F44D", key=f"bm25_up_{idx}"):
-                                    save_feedback(query, row['item_title'], "thumbs_up", mode)
-                                    st.success("Thanks for your feedback!")
-                            with col_down:
-                                if st.button("\U0001F44E", key=f"bm25_down_{idx}"):
-                                    save_feedback(query, row['item_title'], "thumbs_down", mode)
-                                    st.success("Thanks for your feedback!")
-                    count += 1
-                if count == 3:
-                    break
+            bm25_index, docs = get_bm25()
+            results = bm25_search(bm25_index, query, docs, count=1, query_nb=1)
+            df = results_to_df(query, results, top_n=3)
+
+            for i, row in df.iterrows():
+                with st.container(border=True):
+                    col1, col2 = st.columns([3, 1])
+                    with col1:
+                        st.markdown(f"### {row['Product title']}")
+                        st.write(row['Review'])
+                    with col2:
+                        st.markdown(rating_to_stars(row['Rating']), unsafe_allow_html=True)
+                        st.metric("Score", round(row['Score'], 2))
+                        col_up, col_down = st.columns(2)
+                        with col_up:
+                            if st.button("\U0001F44D", key=f"bm25_up_{i}"):
+                                save_feedback(query, row['Product title'], "thumbs_up", mode)
+                                st.success("Thanks for your feedback!")
+                        with col_down:
+                            if st.button("\U0001F44E", key=f"bm25_down_{i}"):
+                                save_feedback(query, row['Product title'], "thumbs_down", mode)
+                                st.success("Thanks for your feedback!")
