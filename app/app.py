@@ -19,7 +19,9 @@ def get_semantic():
 def get_bm25():
     with open('data/processed/bm25_index/bm25_index.pkl', 'rb') as f:
         bm25_index = pickle.load(f)
-    df = pd.read_parquet('data/processed/processed_data.parquet')
+    # load only needed cols to avoid RAM crash
+    df = pd.read_parquet('data/processed/processed_data.parquet', 
+                         columns=['item_title', 'text', 'average_rating', 'parent_asin'])
     return bm25_index, df
 
 # star rating function
@@ -42,8 +44,7 @@ def save_feedback(query, item_title, feedback, mode):
         "query": query,
         "item_title": item_title,
         "feedback": feedback,
-        "mode": mode
-    }])
+        "mode": mode}])
     if os.path.exists(feedback_path):
         new_row.to_csv(feedback_path, mode='a', header=False, index=False)
     else:
