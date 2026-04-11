@@ -54,26 +54,32 @@ For both search implementations, the results are sorted in order of relevance, i
 |3|gaming headset for ps4 ps5 pc gaming headphones stereo 71 surround sound 35mm audio jack over ear headset with microphone wired gaming headset with 50mm drivers for xbox laptop|ps4 gaming headset  xbox one headset xbox one s headset with microphone votron over ear stereo gaming headphones with led light noise reduction for xbox one ps4 pc mac ipad psp headphones| **BM25** : Excellent match <br> **Semantic**  : Excellent match|
 |4|hyperx cloud alpha gaming headset  dual chamber drivers  durable aluminum frame  detachable microphone  works with pc ps4 ps4 pro xbox one xbox one s hxhscardam renewed|dland gaming headset with mic led light for laptop computer cellphone ps4 so on35mm wired noise isolation  volume control|**BM25** : Excellent match <br> **Semantic**  : Excellent match|
 |5|ps4 gaming headset for pc xbox one ps5 phoinikas g2000 wired over ear headphones with detachable noise cancelling mic bluetooth wireless earphones for phone tablet oneclick 71 sound up to 12h|gaming headset for ps4|**BM25** : Excellent match <br> **Semantic**  : Partial match (no mention of microphone)|
----
+
 **Comments** :
 - Both search methods perform quite well, with all the results corresponding to the requirements of the query for the product. 
 - BM25's best result is not a great match for the intended product.
 - **Best method** : Semantic search since the order in which the products are recommended make sense (the last recommendation is the worst match, while BM25 first recommendation is the worst match).
 
+
+**Conclusion** :
+Overall, the results are consistent with keyword-based search (BM25) performing better on keyword based queries.
+
+---
 #### Medium (Semantic-based) Queries
 
 - **Query** : competitive multiplayer game for large groups
 
-|Rank|BM25 Results|Semantic Results|Rating|
+|Rank|BM25 Results|Semantic Results|Match quality|
 |---|---|---|---|
-|1|mario and sonic at the olympic winter games  nintendo wii|tom clancys rainbow six siege  playstation 4|BM25 : 4.5 Semantic : 4.4|
-|2|12 switch  nintendo switch|12 switch  nintendo switch|BM25 : 4.6 Semantic : 4.6|
-|3|hasbro family fun pack  playstation 4 download code|splatoon 2 starter pack  nintendo switch| BM25 : 4.0 Semantic : 4.5|
-|4|powera wired controller for nintendo switch  zelda breath of the wild|rise of nations  pc|BM25 : 4.4 Semantic : 3.5|
-|5|ps4 accel world vs sword art online english subs for playstation 4|dead space 3  pc origin online game code|BM25 : 4.6 Semantic : 4.3|
+|1|mario and sonic at the olympic winter games  nintendo wii|tom clancys rainbow six siege  playstation 4|**BM25** : Partial match (not designed for large groups) <br> **Semantic**  : Excellent match |
+|2|12 switch  nintendo switch|12 switch  nintendo switch|**BM25** : Good match (not ideal for large groups) <br> **Semantic**  : Good match (not ideal for large groups) |
+|3|hasbro family fun pack  playstation 4 download code|splatoon 2 starter pack  nintendo switch|**BM25** : Excellent match  <br> **Semantic**  : Excellent match |
+|4|powera wired controller for nintendo switch  zelda breath of the wild|rise of nations  pc|**BM25** : Bad match (not a game) <br> **Semantic**  :  Partial match (note designed for large groups) |
+|5|ps4 accel world vs sword art online english subs for playstation 4|dead space 3  pc origin online game code|**BM25** : Partial match (not designed for large groups) <br> **Semantic**  : Partial match (note designed for large groups) |
 
-> **Comments** :
->- Both search methods perform quite well, with all the results corresponding to the requirements of the query for the product. 
->- BM25's best result is not a great match for the intended product.
->- **Best method** : Semantic search since the order in which the products are recommended make sense (the last recommendation is the worst match, while BM25 first recommendation is the worst match).
+**Comments** :
+- BM25 struggles to recommend products that match the products requirement 
+- Semantic search performs better but struggles to fulfill all the product equirements (focuses more on the competitive than the large group aspect)
+- **Best method** : Semantic search since it matches the query requirements better.
+---
 #### Complex Queries
