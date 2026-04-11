@@ -30,7 +30,7 @@ For both search implementations, the results are sorted in order of relevance, i
 
 1. **Query** : nintendo switch screen protector
 
-|Rank|BM25 Results|Semantic Results|Comments|
+|Rank|BM25 Results|Semantic Results|Match quality|
 |---|---|---|---|
 |1|syncwire screen protector for nintendo switch 2 pack premium tempered glass screen protector film for nintendo switch|evoretro screen protector compatible for nintendo switch lite  ultra clear heavy duty tempered glass protection kit with high accuracy response and premium protection 2pack|**BM25** : Excellent match <br> **Semantic**  : Good match (Lite specific)|
 |2|heystop case compatible with nintendo switch dockable soft tpu protective case cover for nintendo switch with switch tempered glass screen protector and 6 thumb grip caps|nintendo switch screen protector taken ultral slim hd clear antibubble screen protector film for nintendo switch 2 pack|**BM25** : Partial match (bundle that includes product) <br> **Semantic**  : Excellent match|
@@ -38,28 +38,27 @@ For both search implementations, the results are sorted in order of relevance, i
 |4|xinruisen 3pack screen protector for nintendo switch oled 2021 tempered glass screen protector for nintendo switch oled new model 7inch screen protective glass cover protection for switch oled| smartdevil screen protector for nintendo switch lite 2019antiblue light tempered glass protect eyesight 9h hardness compatible nintendo switch lite 2 pack|**BM25** : Good match (OLED specific)  <br> **Semantic** : Good match (Lite specific)|
 |5|nintendo switch screen protector taken ultral slim hd clear antibubble screen protector film for nintendo switch 2 pack| screen protector tempered glass for nintendo switch lite 2020 antifall and scratch|**BM25** : Excellent match  <br> **Semantic**  : Good match (Lite specific)|
 
-> **Comments** :
->- Both search methods perform quite well, with all the results corresponding to the intended product. 
->- However, both methods highly recommend bundles (BM25 : 2 , Semantic : 3) which contain more than just the screen protector.
->- Semantic search tends to recommend Switch Lite products which is not specified in the query.
->- **Best method** : BM25 since most of the products it recommends are directly relevant to the query
+**Comments** :
+- Both search methods perform quite well, with all the results corresponding to the intended product. 
+- However, both methods highly recommend bundles (BM25 : 2 , Semantic : 3) which contain more than just the screen protector.
+- Semantic search tends to recommend Switch Lite products which is not specified in the query.
+- **Best method** : BM25 since most of the products it recommends are directly relevant to the query
     
 ---
 2. **Query** : gaming headset with microphone
 
-|Rank|BM25 Results|Semantic Results|Rating|
+|Rank|BM25 Results|Semantic Results|Match quality|
 |---|---|---|---|
-|1|ienza pc headset  pc gaming headset compatible for xbox one xb1 or playstation 4 ps4 converter talkback  chat cable|sades arcmage 35mm stereo gaming headset with mic gold|BM25 : 4.0 Semantic : 2.1|
-|2|gtheos 24ghz wireless gaming headphones for pc ps4 ps5 mac nintendo switch bluetooth 52 gaming headset with detachable noise canceling microphone stereo sound 35mm wired mode for xbox series|wired gaming headset with micsades 709 35mm stero over ear headphone for pc laptop notebook tablet smartphone by afuntablue|BM25 : 4.3 Semantic : 3.3|
-|3|gaming headset for ps4 ps5 pc gaming headphones stereo 71 surround sound 35mm audio jack over ear headset with microphone wired gaming headset with 50mm drivers for xbox laptop|ps4 gaming headset  xbox one headset xbox one s headset with microphone votron over ear stereo gaming headphones with led light noise reduction for xbox one ps4 pc mac ipad psp headphones| BM25 : 4.2 Semantic : 3.9|
-|4|hyperx cloud alpha gaming headset  dual chamber drivers  durable aluminum frame  detachable microphone  works with pc ps4 ps4 pro xbox one xbox one s hxhscardam renewed|dland gaming headset with mic led light for laptop computer cellphone ps4 so on35mm wired noise isolation  volume control|BM25 : 4.4 Semantic : 3.5|
-|5|ps4 gaming headset for pc xbox one ps5 phoinikas g2000 wired over ear headphones with detachable noise cancelling mic bluetooth wireless earphones for phone tablet oneclick 71 sound up to 12h|gaming headset for ps4|BM25 : 3.6 Semantic : 3.5|
-
-> **Comments** :
->- Both search methods perform quite well, with all the results corresponding to the intended product. 
->- However, both methods highly recommend bundles (BM25 : 2 , Semantic : 3) which contain more than just the screen protector.
->- Semantic search tends to recommend Switch Lite products which is not specified in the query.
->- **Best method** : BM25 since most of the products it recommends are directly relevant to the query
+|1|ienza pc headset  pc gaming headset compatible for xbox one xb1 or playstation 4 ps4 converter talkback  chat cable|sades arcmage 35mm stereo gaming headset with mic gold|**BM25** : Partial match (no mention of microphone) <br> **Semantic**  : Excellent match |
+|2|gtheos 24ghz wireless gaming headphones for pc ps4 ps5 mac nintendo switch bluetooth 52 gaming headset with detachable noise canceling microphone stereo sound 35mm wired mode for xbox series|wired gaming headset with micsades 709 35mm stero over ear headphone for pc laptop notebook tablet smartphone by afuntablue|**BM25** : Excellent match <br> **Semantic**  : Excellent match |
+|3|gaming headset for ps4 ps5 pc gaming headphones stereo 71 surround sound 35mm audio jack over ear headset with microphone wired gaming headset with 50mm drivers for xbox laptop|ps4 gaming headset  xbox one headset xbox one s headset with microphone votron over ear stereo gaming headphones with led light noise reduction for xbox one ps4 pc mac ipad psp headphones| **BM25** : Excellent match <br> **Semantic**  : Excellent match|
+|4|hyperx cloud alpha gaming headset  dual chamber drivers  durable aluminum frame  detachable microphone  works with pc ps4 ps4 pro xbox one xbox one s hxhscardam renewed|dland gaming headset with mic led light for laptop computer cellphone ps4 so on35mm wired noise isolation  volume control|**BM25** : Excellent match <br> **Semantic**  : Excellent match|
+|5|ps4 gaming headset for pc xbox one ps5 phoinikas g2000 wired over ear headphones with detachable noise cancelling mic bluetooth wireless earphones for phone tablet oneclick 71 sound up to 12h|gaming headset for ps4|**BM25** : Excellent match <br> **Semantic**  : Partial match (no mention of microphone)|
+---
+**Comments** :
+- Both search methods perform quite well, with all the results corresponding to the requirements of the query for the product. 
+- BM25's best result is not a great match for the intended product.
+- **Best method** : Semantic search since the order in which the products are recommended make sense (the last recommendation is the worst match, while BM25 first recommendation is the worst match).
 
 #### Medium (Semantic-based) Queries
 
@@ -73,4 +72,8 @@ For both search implementations, the results are sorted in order of relevance, i
 |4|powera wired controller for nintendo switch  zelda breath of the wild|rise of nations  pc|BM25 : 4.4 Semantic : 3.5|
 |5|ps4 accel world vs sword art online english subs for playstation 4|dead space 3  pc origin online game code|BM25 : 4.6 Semantic : 4.3|
 
+> **Comments** :
+>- Both search methods perform quite well, with all the results corresponding to the requirements of the query for the product. 
+>- BM25's best result is not a great match for the intended product.
+>- **Best method** : Semantic search since the order in which the products are recommended make sense (the last recommendation is the worst match, while BM25 first recommendation is the worst match).
 #### Complex Queries
