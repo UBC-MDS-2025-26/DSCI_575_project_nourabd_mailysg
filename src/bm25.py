@@ -1,3 +1,15 @@
+"""
+A module that implements BM25 search.
+
+Functions:
+- load_documents
+- build_index
+- save_index
+- load_index
+- bm25_search
+
+"""
+
 from langchain_community.retrievers import BM25Retriever
 import pickle
 import pandas as pd
@@ -11,29 +23,28 @@ def load_documents(parquet_path):
 
 
 def build_index(doc_list, k=5):
-     # Fit BM25 retriever
+    """Build the BM25 index"""
     retriever = BM25Retriever.from_documents(doc_list)
 
     # Retrieve index
     bm25_index = retriever.vectorizer
-
     return bm25_index
 
 def save_index(bm25_index,path):
-    #Save index as pickle file
+    """Save index as pickle file"""
     with open(f'{path}/bm25_index.pkl', 'wb') as f:
         pickle.dump(bm25_index, f)
     print(f"Index saved to {path}")
 
 def load_index(path):
-    #Load index as pickle file
+    """Load index from pickle file"""
     with open(f'{path}/bm25_index.pkl', 'rb') as f:
         bm25_index = pickle.load(f)
     print(f"Index loaded from {path}")
     return bm25_index
 
 def bm25_search(bm25_index, query, doc_list):
-    # Query search
+    """Implement BM25 search on given query"""
     tokenized_query = tokenize(query)
   
     scores = bm25_index.get_scores(tokenized_query)
@@ -61,10 +72,10 @@ if __name__ == "__main__":
     ]
 
     # build and save index (run once)
-    # comment out these lines once you have generated faiss_index data 
+    # comment out these lines once you have generated bm25_index data 
     docs = load_documents('data/processed/processed_data.parquet')
-    # bm25_index = build_index(docs)
-    # save_index(bm25_index, 'data/processed/bm25_index')
+    bm25_index = build_index(docs)
+    save_index(bm25_index, 'data/processed/bm25_index')
 
     bm25_index = load_index('data/processed/bm25_index')
 
