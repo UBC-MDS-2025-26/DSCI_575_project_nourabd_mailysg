@@ -88,7 +88,8 @@ if query:
         elif mode == "BM25":
             bm25_index, df = get_bm25()
             tokenized_query = query.split()
-            scores = bm25_index.get_scores(tokenized_query)
+            scores = bm25_index.get_scores(tokenized_query) #computes scores on all 400k docs, causes memory crash especially 
+            #when semantic search index also loaded into memory already 
             top_indices = scores.argsort()[::-1][:30]
             seen_asins = set()
             count = 0
