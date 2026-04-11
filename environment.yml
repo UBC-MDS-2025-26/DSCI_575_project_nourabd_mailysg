@@ -2,7 +2,19 @@ name: 575-proj
 channels:
   - conda-forge
 dependencies:
-  - python=3.14
+  - python=3.11
   - ipykernel
   - pandas
+  - pyarrow
+  - jupyter
+  - pip
+  - pip:
+    - rank-bm25      
+    - sentence-transformers  
+    - faiss-cpu
+    - langchain
+    - langchain-community
+    - nltk
+    - langchain-huggingface
+
 
