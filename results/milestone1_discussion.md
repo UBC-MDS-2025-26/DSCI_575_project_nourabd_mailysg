@@ -26,18 +26,26 @@ For both search implementations, the results are sorted in order of relevance, i
 
 ### Result comparison
 
-#### Easy (Keyword-based) Queries
-- **Query** : nintendo switch screen protector
+#### Easy (Keyword-based) Queries :
 
-|Rank|BM25 Results|Semantic Results|Rating|
+1. **Query** : nintendo switch screen protector
+
+|Rank|BM25 Results|Semantic Results|Comments|
 |---|---|---|---|
-|1|syncwire screen protector for nintendo switch 2 pack premium tempered glass screen protector film for nintendo switch|evoretro screen protector compatible for nintendo switch lite  ultra clear heavy duty tempered glass protection kit with high accuracy response and premium protection 2pack|BM25 : 4.7 Semantic : 4.6|
-|2|heystop case compatible with nintendo switch dockable soft tpu protective case cover for nintendo switch with switch tempered glass screen protector and 6 thumb grip caps|nintendo switch screen protector taken ultral slim hd clear antibubble screen protector film for nintendo switch 2 pack|BM25 : 4.4 Semantic : 4.0|
-|3|evoretro screen protector compatible for nintendo switch lite  ultra clear heavy duty tempered glass protection kit with high accuracy response and premium protection 2pack|rinogear 2pack screen protector for nintendo switch screen protector case friendly accessories flexible full coverage clear tpu film| BM25 : 4.6 Semantic : 4.0|
-|4|xinruisen 3pack screen protector for nintendo switch oled 2021 tempered glass screen protector for nintendo switch oled new model 7inch screen protective glass cover protection for switch oled| smartdevil screen protector for nintendo switch lite 2019antiblue light tempered glass protect eyesight 9h hardness compatible nintendo switch lite 2 pack|BM25 : 4.6 Semantic : 4.6|
-|5|nintendo switch screen protector taken ultral slim hd clear antibubble screen protector film for nintendo switch 2 pack| screen protector tempered glass for nintendo switch lite 2020 antifall and scratch|BM25 : 4.0 Semantic : 4.4|
+|1|syncwire screen protector for nintendo switch 2 pack premium tempered glass screen protector film for nintendo switch|evoretro screen protector compatible for nintendo switch lite  ultra clear heavy duty tempered glass protection kit with high accuracy response and premium protection 2pack|**BM25** : Excellent match <br> **Semantic**  : Good match (Lite specific)|
+|2|heystop case compatible with nintendo switch dockable soft tpu protective case cover for nintendo switch with switch tempered glass screen protector and 6 thumb grip caps|nintendo switch screen protector taken ultral slim hd clear antibubble screen protector film for nintendo switch 2 pack|**BM25** : Partial match (bundle that includes product) <br> **Semantic**  : Excellent match|
+|3|evoretro screen protector compatible for nintendo switch lite  ultra clear heavy duty tempered glass protection kit with high accuracy response and premium protection 2pack|rinogear 2pack screen protector for nintendo switch screen protector case friendly accessories flexible full coverage clear tpu film| **BM25** : Good match (Lite specific) <br> **Semantic**  : Partial match (bundle that includes product)|
+|4|xinruisen 3pack screen protector for nintendo switch oled 2021 tempered glass screen protector for nintendo switch oled new model 7inch screen protective glass cover protection for switch oled| smartdevil screen protector for nintendo switch lite 2019antiblue light tempered glass protect eyesight 9h hardness compatible nintendo switch lite 2 pack|**BM25** : Good match (OLED specific)  <br> **Semantic** : Good match (Lite specific)|
+|5|nintendo switch screen protector taken ultral slim hd clear antibubble screen protector film for nintendo switch 2 pack| screen protector tempered glass for nintendo switch lite 2020 antifall and scratch|**BM25** : Excellent match  <br> **Semantic**  : Good match (Lite specific)|
 
-- **Query** : gaming headset with microphone
+> **Comments** :
+>- Both search methods perform quite well, with all the results corresponding to the intended product. 
+>- However, both methods highly recommend bundles (BM25 : 2 , Semantic : 3) which contain more than just the screen protector.
+>- Semantic search tends to recommend Switch Lite products which is not specified in the query.
+>- **Best method** : BM25 since most of the products it recommends are directly relevant to the query
+    
+---
+2. **Query** : gaming headset with microphone
 
 |Rank|BM25 Results|Semantic Results|Rating|
 |---|---|---|---|
@@ -47,6 +55,11 @@ For both search implementations, the results are sorted in order of relevance, i
 |4|hyperx cloud alpha gaming headset  dual chamber drivers  durable aluminum frame  detachable microphone  works with pc ps4 ps4 pro xbox one xbox one s hxhscardam renewed|dland gaming headset with mic led light for laptop computer cellphone ps4 so on35mm wired noise isolation  volume control|BM25 : 4.4 Semantic : 3.5|
 |5|ps4 gaming headset for pc xbox one ps5 phoinikas g2000 wired over ear headphones with detachable noise cancelling mic bluetooth wireless earphones for phone tablet oneclick 71 sound up to 12h|gaming headset for ps4|BM25 : 3.6 Semantic : 3.5|
 
+> **Comments** :
+>- Both search methods perform quite well, with all the results corresponding to the intended product. 
+>- However, both methods highly recommend bundles (BM25 : 2 , Semantic : 3) which contain more than just the screen protector.
+>- Semantic search tends to recommend Switch Lite products which is not specified in the query.
+>- **Best method** : BM25 since most of the products it recommends are directly relevant to the query
 
 #### Medium (Semantic-based) Queries
 
