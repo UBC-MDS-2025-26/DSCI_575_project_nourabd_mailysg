@@ -87,11 +87,11 @@ if __name__ == "__main__":
 
     # build and save index (run once)
     # comment out these lines once you have generated faiss_index data 
-    docs = load_documents('data/processed/processed_data.parquet')
-    vector_store, _ = build_index(docs)
-    save_index(vector_store, 'data/faiss_index')
+    # docs = load_documents('data/processed/processed_data.parquet')
+    # vector_store, _ = build_index(docs)
+    # save_index(vector_store, 'data/processed/faiss_index')
 
-    vector_store = load_index('data/faiss_index')
+    vector_store = load_index('data/processed/faiss_index')
 
     # run queries and save results
     all_results = []
