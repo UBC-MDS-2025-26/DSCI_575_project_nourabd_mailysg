@@ -1,5 +1,5 @@
 """
-A module that implements BM25 search.
+A module that implements BM25 search on a list of 10 queries.
 
 Functions:
 - load_documents
@@ -25,8 +25,9 @@ def load_documents(parquet_path):
 
 def build_index(doc_list, k=5):
     """Build the BM25 index"""
-    retriever = BM25Retriever.from_documents(doc_list)
     print("Building index")
+    retriever = BM25Retriever.from_documents(doc_list)
+
     # Retrieve index
     bm25_index = retriever.vectorizer
     print("Completed index build")
@@ -73,12 +74,15 @@ if __name__ == "__main__":
         "good single player story game for a beginner who just got their first playstation under $50"
     ]
 
+    # Load documents
+    docs = load_documents('data/processed/processed_data.parquet')
+
     # build and save index (run once)
     # comment out these lines once you have generated bm25_index data 
-    docs = load_documents('data/processed/processed_data.parquet')
     bm25_index = build_index(docs)
     save_index(bm25_index, 'data/processed/bm25_index')
 
+    # Load index
     bm25_index = load_index('data/processed/bm25_index')
 
     # run queries and save results
