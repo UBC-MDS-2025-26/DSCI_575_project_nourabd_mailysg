@@ -16,7 +16,7 @@ import pandas as pd
 
 def load_data(name, file):
     """Load json files and create a list of records"""
-    
+
     record_list = []
     with open(file, 'r') as fp:
         for line in fp:
@@ -40,7 +40,7 @@ def create_features(meta_data):
     
 
 def merged(sample_size=400000):
-    """Merge meta data and user dataframes"""
+    """Merge meta data and user dataframes, returns a given sample of the data."""
 
     # Load the data
     print('Loading user reviews ...')
@@ -97,10 +97,14 @@ def create_corpus(merged):
     """This function creates the corpus by preprocessing given columns."""
     print("Preprocessing data ...")
     count = 1
+
+    # Preprocess the data
     for column in ['item_title', 'features', 'description','store','categories','item_type', 'rated','date_first_available', 'review_title','text']:   
         merged[column] = merged[column].apply(lambda x : preprocess(x))
         print(f'... {count}/10 columns done ...')
         count +=1
+    
+    # Save corpus to parquet
     merged.to_parquet('data/processed/processed_data.parquet', engine='pyarrow', compression='snappy')
     print(f'Preprocessing done!')
 
