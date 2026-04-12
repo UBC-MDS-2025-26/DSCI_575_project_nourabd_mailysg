@@ -58,6 +58,7 @@ For both search implementations, the results are sorted in order of relevance, i
 |5|ps4 gaming headset for pc xbox one ps5 phoinikas g2000 wired over ear headphones with detachable noise cancelling mic bluetooth wireless earphones for phone tablet oneclick 71 sound up to 12h|gaming headset for ps4|**BM25** : Excellent match <br> **Semantic**  : Partial match (no mention of microphone)|
 
 **Comments** :
+
 - Both search methods perform quite well, with all the results corresponding to the requirements of the query for the product. 
 - BM25's best result is not a great match for the intended product.
 - **Best method** : Semantic search since the order in which the products are recommended make sense (the last recommendation is the worst match, while BM25 first recommendation is the worst match).
@@ -80,6 +81,7 @@ Overall, the results are consistent with keyword-based search (BM25) performing 
 |5|ps4 accel world vs sword art online english subs for playstation 4|dead space 3  pc origin online game code|**BM25** : Partial match (not designed for large groups) <br> **Semantic**  : Partial match (note designed for large groups) |
 
 **Comments** :
+
 - BM25 struggles to recommend products that match the products requirement 
 - Semantic search performs better but struggles to fulfill all the product equirements (focuses more on the competitive than the large group aspect)
 - **Best method** : Semantic search since it matches the query requirements better.
@@ -120,3 +122,45 @@ Overall, the results are consistent with keyword-based search (BM25) performing 
 - Semantic search understands "story game" better, returning RPGs(Role Playing Game), but fails on the price criteria (beinf under $50). It tends to return more expensive games and even games that are not for the intended playstation platform (returns nintendo, xbox.)
 - Both methods don't do well with the price and platform requirement. Semantic search does better at recommended story-driven video games.
 - **Best method:** None. This query likely requires more complex methods like hybrid search, RAG or post-retrieval filtering to handle price constraints, platform type, difficulty level and type of game (story vs combat etc.).
+
+## Summary of Insights
+
+### Strengths and Weaknesses
+
+**BM25:**
+
+- Strengths:
+  - Performs well on exact keyword queries (e.g. "nintendo switch screen protector", "gaming headset with microphone") where the product name or type appears directly in the query
+  - Fast + reliable for specific product searches
+  - Returns diverse results for product queries (i.e. nintendo switch screen protector, BM25 returned different brands)
+- Weaknesses:
+  - Interprets queries very literally, failing to understand when keyword is related to criteria within product and not name of product itself. E.g "battery life" returns battery parts instead of controllers with good battery life. That means that this method fails to understand user intent or product attributes beyond keyword matching.
+  - Because it is key-word focused, it doesn't do well on semantic or conceptual queries (e.g. "competitive multiplayer game for large groups")
+  - Cannot handle specific criteria requirements like price or platform
+
+**Semantic Search:**
+
+- Strengths:
+  - Compared to BM25, it has a better understanding of user intent and conceptual queries. For example, it returns competitive multiplayer games for "competitive multiplayer game for large groups" even when exact game titles are not mentioned in the query.
+  - Does better on attribute-based queries that describe a product (e.g. "comfortable headset for long gaming sessions", 
+  "ps4 controller with good battery life").
+- Weaknesses:
+  - Like BM25, cannot filter by price or platform metadata
+  - Does not return many unique results. Many queries only had 1 result returned for semantic search, whereas BM25 always returned top 5 when specified.
+  - It's much slower than BM25 at scale
+  - Product quality is not guaranteed. Some of the reviews (e.g. controller battery life), were not great, so the model is better at capturing similarity between product and query but cannot always distinguish between good vs bad reviewed products.
+
+### Challenging Query Types for Both Methods
+
+- Complex query types showed the worst performance with both models.
+- Queries with a price restriction (e.g. under $50) were very difficult for both methods. Neither method could filter by price meta-data. Post-retrieval filtering may be required.
+- Same difficulties also seen for platform type (e.g. specifying ps4 but getting results specific to xbox or nintendo)
+- Multi-constraint queries combining product type, price, platform and experience level simultaneously (as seen above).
+- For BM25, semantic/conceptual queries were also challenging, when the user describes a product attribute or intent rather than a product name, BM25 falls back to literal keyword matching which returned irrelevant results.
+
+### Where Advanced Methods Would Help
+
+- **Hybrid Search**: Combining BM25 and semantic search would leverage strengths of both. Exact keyword matching for product names and semantic understanding for attributes and user intent/requirements. It would be more accurate but also better at capturing what user is looking for exactly.
+- **Post-retrieval Metadata Filtering**: Filtering results by price, platform and rating after retrieval would improve complex query results with many specific criteria specified by the user.
+- **RAG**: With RAG, the LLM agent could synthesize information from multiple retrieved reviews, which would be better for recommedning good qualtiy, well-reviewed products. With this model, the products being recommended are more trustworthy in terms of their function/performance.
+- **Reranking**: Uses a true relevance score after the documents/products have been retrieved and reorders them so that the items being recommended to the user are actually more relevant to the query, not just more similar. This way the products that best satisfy all query requirements are being recommended in a more meaningful order.
