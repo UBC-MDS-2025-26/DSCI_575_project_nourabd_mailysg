@@ -14,6 +14,8 @@ from langchain_community.retrievers import BM25Retriever
 
 st.set_page_config(page_title="Video Game Search", layout="wide")
 st.title("\U0001F3AE Amazon Video Game Product Search")
+st.markdown("Search for video game products using keyword (BM25) or semantic search.")  # ← add here
+st.divider()
 
 # load index on demand - separately depending on which radio button selected due to RAM restrictions
 @st.cache_resource
@@ -98,15 +100,18 @@ if query:
             results = semantic_search(vector_store, query, k=50)
             df = results_to_df(query, results, top_n=3)
 
+            st.markdown(f"**Top {len(df)} results for:** *{query}*")
+
             for i, row in df.iterrows():
                 with st.container(border=True):
                     col1, col2 = st.columns([3, 1])
                     with col1:
-                        st.markdown(f"### {row['Product title']}")
+                        st.markdown(f"### {row['Product title'].title()}")
+                        st.markdown("**Review:**")
                         st.write(row['Review'])
                     with col2:
                         st.markdown(rating_to_stars(row['Rating']), unsafe_allow_html=True)
-                        st.metric("Score", round(row['Score'], 2))
+                        st.metric("Similarity score", round(row['Score'], 2))
                         col_up, col_down = st.columns(2)
                 
                         with col_up:
@@ -123,15 +128,18 @@ if query:
             results = bm25_search(bm25_index, query, docs, count=1, query_nb=1)
             df = results_to_df(query, results, top_n=3)
 
+            st.markdown(f"**Top {len(df)} results for:** *{query}*")
+
             for i, row in df.iterrows():
                 with st.container(border=True):
                     col1, col2 = st.columns([3, 1])
                     with col1:
-                        st.markdown(f"### {row['Product title']}")
+                        st.markdown(f"### {row['Product title'].title()}")
+                        st.markdown("**Review:**")
                         st.write(row['Review'])
                     with col2:
                         st.markdown(rating_to_stars(row['Rating']), unsafe_allow_html=True)
-                        st.metric("Score", round(row['Score'], 2))
+                        st.metric("Similarity score", round(row['Score'], 2))
                         col_up, col_down = st.columns(2)
                         with col_up:
                             if st.button("\U0001F44D", key=f"bm25_up_{i}"):
