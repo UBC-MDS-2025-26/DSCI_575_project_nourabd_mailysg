@@ -69,7 +69,7 @@ Overall, the results are consistent with keyword-based search (BM25) performing 
 ---
 #### Medium (Semantic-based) Queries
 
-- **Query** : competitive multiplayer game for large groups
+1. **Query** : competitive multiplayer game for large groups
 
 |Rank|BM25 Results|Semantic Results|Match quality|
 |---|---|---|---|
@@ -84,15 +84,21 @@ Overall, the results are consistent with keyword-based search (BM25) performing 
 - Semantic search performs better but struggles to fulfill all the product equirements (focuses more on the competitive than the large group aspect)
 - **Best method** : Semantic search since it matches the query requirements better.
 
-- **Query:** ps4 controller with good battery life
+2. **Query:** ps4 controller with good battery life
 
 |Rank|BM25 Results|Semantic Results|Match quality|
 |---|---|---|---|
-|1|lip1922s 2200mah 37v lithium battery replacement for sony ps4 pro dual shock 4 cuhzct2e cuhzct2u wireless controller 2pack|wireless gaming controller for ps4 geeklin wireless gamepad remote joystick for ps4ps3androidiospc with upgraded joystick headset jack and dual vibration||
-|2|extremerate multicolors luminated dpad thumbstick trigger home face buttons for ps4 controller dtfs dtf 20 led kit for ps4 slim pro cuhzct2 controller  controller not included|kujian wireless controller for ps4 high performance double shock game controller compatible with playstation 4slimpropc gaming controller with sensitive touch pad motion sensornebula series||
-|3|rechargeable batteries for ps4 controller farsail 1pack 2000mah lip1522 ps4 battery replacement with big and small plug for playstation 4 ps4 dualshock 4 wireless controller|playstation 3 doubleshock iii wireless controller black||
-|4|seivi 2 pack 2000mah lip1522 replacement battery compatible with playstation 4 ps4 dualshock 4 cuhzct1e cuhzct1h cuhzct1u wireless controller big and small plug|sades ps4 controller||
-|5|kujian wireless controller for ps4 high performance double shock game controller compatible with playstation 4slimpropc gaming controller with sensitive touch pad motion sensornebula series|replacement for ps4 controller wireless controller for ps4props3slimpc dedicated game joystick controller dual vibration audio function||
+|1|lip1922s 2200mah 37v lithium battery replacement for sony ps4 pro dual shock 4 cuhzct2e cuhzct2u wireless controller 2pack|wireless gaming controller for ps4 geeklin wireless gamepad remote joystick for ps4ps3androidiospc with upgraded joystick headset jack and dual vibration| **BM25:** Not a good match (batteries not controller returned) <br> **Semantic:** Good match|
+|2|extremerate multicolors luminated dpad thumbstick trigger home face buttons for ps4 controller dtfs dtf 20 led kit for ps4 slim pro cuhzct2 controller  controller not included|kujian wireless controller for ps4 high performance double shock game controller compatible with playstation 4slimpropc gaming controller with sensitive touch pad motion sensornebula series| **BM25:** Bad match <br> **Semantic:** Good match|
+|3|rechargeable batteries for ps4 controller farsail 1pack 2000mah lip1522 ps4 battery replacement with big and small plug for playstation 4 ps4 dualshock 4 wireless controller|playstation 3 doubleshock iii wireless controller black| **BM25:** Bad match (battery replacement) <br> **Semantic:** Partial match (PS3 instead of PS4)|
+|4|seivi 2 pack 2000mah lip1522 replacement battery compatible with playstation 4 ps4 dualshock 4 cuhzct1e cuhzct1h cuhzct1u wireless controller big and small plug|sades ps4 controller| **BM25:** Bad match <br> **Semantic:** Good match|
+|5|kujian wireless controller for ps4 high performance double shock game controller compatible with playstation 4slimpropc gaming controller with sensitive touch pad motion sensornebula series|replacement for ps4 controller wireless controller for ps4props3slimpc dedicated game joystick controller dual vibration audio function| **BM25**: Good match (controller) <br> **Good Match:** Good match|
+
+**Comments:**
+
+- BM25 seems to misinterpret "battery life" as a keyword/phrase and instead returns repalcement battery parts and accessories instead of recommending actual controllers. Only 1 out of 5 BM25 results is a controller. User's intent/product feature: 'good battery life', is clearly not captured by BM25.
+- Semantic search does much better with this query. It returns controllers in 4 out of 5 results however, none of the results explicitly mention battery life as a feature. After looking at the reviews, the second and third best controllers recommended by semantic search have a bad reviews, where battery life is mentioned to last for 5 minutes.
+- **Best method:** Overall, semantic search does better compared to BM25, since it returns the product being asked for, but the quality of the product recommendation is questionable and definitely requires improvement.
 
 ---
 #### Complex Queries
@@ -101,8 +107,16 @@ Overall, the results are consistent with keyword-based search (BM25) performing 
 
 |Rank|BM25 Results|Semantic Results|Match quality|
 |---|---|---|---|
-|1| battlefield 3  playstation 3| saiyuki journey west| |
-|2|dead space 3  pc origin online game code | beyond the beyond	 | |
-|3| call of duty ghosts  ps3 digital code | tom clancys ghost recon breakpoint standard edition  xbox one digital code| |
-|4| cold fear  playstation 2 | shin megami tensei v steelbook launch edition  nintendo switch | |
-|5| grim adventures of billy  mandy | call of duty black ops iii  standard edition  playstation 4 | |
+|1| battlefield 3  playstation 3| saiyuki journey west| **BM25:** Partial match (playstation game but not story/beginner friendly) <br> **Semantic:** Partial Match (story game, but expensive) |
+|2|dead space 3  pc origin online game code | beyond the beyond	 | **BM25:** Bad match (PC game not playstation) <br> **Semantic:** Partial Match (story game, above $50)|
+|3| call of duty ghosts  ps3 digital code | tom clancys ghost recon breakpoint standard edition  xbox one digital code| **BM25**: Partial match (moderate level game, cheap) <br> **Semantic:** Bad match (wrong platform) |
+|4| cold fear  playstation 2 | shin megami tensei v steelbook launch edition  nintendo switch | **BM25:** Bad match (horror, expensive) <br> **Semantic:** Bad match (nintendo not playstation) |
+|5| grim adventures of billy  mandy | call of duty black ops iii  standard edition  playstation 4 | **BM25:** Partial Match (not story game) <br> **Semantic:** Partial match (story, beginner, expensive) |
+
+**Comments:**
+
+- This query is a lot more difficult to handle for both models. It has multiple constraints: single player, story-driven, beginner friendly, playstation platform, under $50.
+- BM25 sometimes matches on "playstation" keyword but returns shooter games (Battlefield, Call of Duty) which tend to not be story-driven or beginner friendly. Overall, BM25 produces only partially relevant results.
+- Semantic search understands "story game" better, returning RPGs(Role Playing Game), but fails on the price criteria (beinf under $50). It tends to return more expensive games and even games that are not for the intended playstation platform (returns nintendo, xbox.)
+- Both methods don't do well with the price and platform requirement. Semantic search does better at recommended story-driven video games.
+- **Best method:** None. This query likely requires more complex methods like hybrid search, RAG or post-retrieval filtering to handle price constraints, platform type, difficulty level and type of game (story vs combat etc.).
