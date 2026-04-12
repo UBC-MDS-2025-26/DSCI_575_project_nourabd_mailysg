@@ -9,6 +9,8 @@
 |xbox 360 wireless controller|comfortable headset for long gaming sessions|
 |fifa 16 game for playstation|ps4 controller with good battery life|
 
+**Note**: The semantic search was not able to produce 5 unique items for some queries (see semantic_results.csv). This is likely due to two reasons: (1) our dataset is a 400k sample of the full 3.9M Amazon video game product dataset, which may underrepresent certain product queries, and (2) many records in the dataset correspond to different user reviews of the same product. We deduplicated results by product ID (`parent_asin`) to ensure unique products are returned, which reduces the number of available results for some queries. BM25 does not have this issue as keyword matching naturally surfaces a wider variety of products.
+
 ## Results 
 
 ### Result retrieval
@@ -81,5 +83,26 @@ Overall, the results are consistent with keyword-based search (BM25) performing 
 - BM25 struggles to recommend products that match the products requirement 
 - Semantic search performs better but struggles to fulfill all the product equirements (focuses more on the competitive than the large group aspect)
 - **Best method** : Semantic search since it matches the query requirements better.
+
+- **Query:** ps4 controller with good battery life
+
+|Rank|BM25 Results|Semantic Results|Match quality|
+|---|---|---|---|
+|1|lip1922s 2200mah 37v lithium battery replacement for sony ps4 pro dual shock 4 cuhzct2e cuhzct2u wireless controller 2pack|wireless gaming controller for ps4 geeklin wireless gamepad remote joystick for ps4ps3androidiospc with upgraded joystick headset jack and dual vibration||
+|2|extremerate multicolors luminated dpad thumbstick trigger home face buttons for ps4 controller dtfs dtf 20 led kit for ps4 slim pro cuhzct2 controller  controller not included|kujian wireless controller for ps4 high performance double shock game controller compatible with playstation 4slimpropc gaming controller with sensitive touch pad motion sensornebula series||
+|3|rechargeable batteries for ps4 controller farsail 1pack 2000mah lip1522 ps4 battery replacement with big and small plug for playstation 4 ps4 dualshock 4 wireless controller|playstation 3 doubleshock iii wireless controller black||
+|4|seivi 2 pack 2000mah lip1522 replacement battery compatible with playstation 4 ps4 dualshock 4 cuhzct1e cuhzct1h cuhzct1u wireless controller big and small plug|sades ps4 controller||
+|5|kujian wireless controller for ps4 high performance double shock game controller compatible with playstation 4slimpropc gaming controller with sensitive touch pad motion sensornebula series|replacement for ps4 controller wireless controller for ps4props3slimpc dedicated game joystick controller dual vibration audio function||
+
 ---
 #### Complex Queries
+
+- **Query**: good single player story game for a beginner who just got their first playstation under $50
+
+|Rank|BM25 Results|Semantic Results|Match quality|
+|---|---|---|---|
+|1| battlefield 3  playstation 3| saiyuki journey west| |
+|2|dead space 3  pc origin online game code | beyond the beyond	 | |
+|3| call of duty ghosts  ps3 digital code | tom clancys ghost recon breakpoint standard edition  xbox one digital code| |
+|4| cold fear  playstation 2 | shin megami tensei v steelbook launch edition  nintendo switch | |
+|5| grim adventures of billy  mandy | call of duty black ops iii  standard edition  playstation 4 | |
