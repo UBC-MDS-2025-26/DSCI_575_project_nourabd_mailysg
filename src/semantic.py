@@ -4,8 +4,8 @@ from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.docstore.in_memory import InMemoryDocstore
 import faiss
-from save_to_df import results_to_df
-from tokenizer import create_documents
+from .save_to_df import results_to_df
+from .tokenizer import create_documents
 
 
 def load_documents(parquet_path):

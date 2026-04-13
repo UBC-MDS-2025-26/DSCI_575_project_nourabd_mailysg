@@ -16,5 +16,4 @@ dependencies:
     - langchain-community
     - nltk
     - langchain-huggingface
-
-
+    - streamlit

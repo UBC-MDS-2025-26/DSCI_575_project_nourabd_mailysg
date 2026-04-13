@@ -48,7 +48,6 @@ def create_documents(parquet_path='data/processed/processed_data.parquet', doc_l
                 "store" : record.store,
                 "categories" : record.categories,
                 "item_type" : record.item_type,
-                "review_title" : record.review_title,
                 "rated" : record.rated,
                 "date_first_available" : record.date_first_available,
                 "review_title" : record.review_title,
