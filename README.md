@@ -104,18 +104,17 @@ To run the workflow, follow the instructions below :
     ```
 
 2. Run the retrieval workflows :
+    - BM25 search  :
     
     ```{bash}
-    python src/bm25.py 
-    python src/semantic.py
+    python -m src.bm25 
+    ```
+    - Semantic search  :
+    
+    ```{bash}
+    python -m src.semantic 
     ```
 
-    
-    
-    
-
-
-
-## Recreate Environment
+The results of the workflows can be found in the [results](results) folder.
 
 ## Running the App
