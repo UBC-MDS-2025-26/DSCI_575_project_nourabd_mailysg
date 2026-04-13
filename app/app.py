@@ -1,5 +1,5 @@
 """
-If the web app crashes due to memorry constraints (low RAM), 
+If the web app crashes due to memory constraints (low RAM), 
 use OPTION 2 in the get_bm25() function.
 """
 

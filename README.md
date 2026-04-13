@@ -54,7 +54,7 @@ Due to storage and memory constraints, only the first 400k rows of the processed
 
 To change the amount of data used, follow the instructions below :
 1. Follow the link to the [src/preprocess.py](src/preprocess.py) module
-2. At the bottom of the module change the `sample_size` argumentof the `merged` function to the desired size.
+2. At the bottom of the module, change the `sample_size` argument of the `merged` function to the desired size.
 
 ## Instructions
 
