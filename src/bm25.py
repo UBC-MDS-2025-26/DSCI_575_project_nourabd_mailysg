@@ -13,47 +13,63 @@ Functions:
 from langchain_community.retrievers import BM25Retriever
 import pickle
 import pandas as pd
-from tokenizer import create_documents, tokenize
-from save_to_df import results_to_df
+from .tokenizer import create_documents, tokenize
+from .save_to_df import results_to_df
 
 def load_documents(parquet_path):
     """Load document list needed for search"""
+    print("Creating document list...")
     doc_list = create_documents(parquet_path)
-    print("Document list loaded")
+    print("Document list created!")
     return doc_list
 
 
-def build_index(doc_list, k=5):
+def build_index(doc_list):
     """Build the BM25 index"""
-    print("Building index")
+    print("Building index...")
     retriever = BM25Retriever.from_documents(doc_list)
 
     # Retrieve index
     bm25_index = retriever.vectorizer
-    print("Completed index build")
+    print("Completed index build!")
+
     return bm25_index
 
 def save_index(bm25_index,path):
     """Save index as pickle file"""
+    print(f"Saving index...")
+
     with open(f'{path}/bm25_index.pkl', 'wb') as f:
         pickle.dump(bm25_index, f)
+
     print(f"Index saved to {path}")
 
 def load_index(path):
     """Load index from pickle file"""
+    print(f"Loading index...")
+
     with open(f'{path}/bm25_index.pkl', 'rb') as f:
         bm25_index = pickle.load(f)
+
     print(f"Index loaded from {path}")
+
     return bm25_index
 
-def bm25_search(bm25_index, query, doc_list, count, query_nb):
+def bm25_search(bm25_index, query, doc_list, count=False, query_nb=False):
     """Implement BM25 search on given query"""
-    tokenized_query = tokenize(query)
-    
-    scores = bm25_index.get_scores(tokenized_query)
+    if count==1 :
+        print(f"Searching query...")
 
+    # Tokenize query
+    tokenized_query = tokenize(query)
+
+    #Get BM25 scores
+    scores = bm25_index.get_scores(tokenized_query)
     results_dict = sorted(zip(doc_list, scores), key=lambda x: x[1], reverse=True)
-    print(f"{count}/{query_nb} queries searched")
+
+    if count and query_nb:
+        print(f"{count}/{query_nb} queries searched")
+
     return results_dict
        
 
