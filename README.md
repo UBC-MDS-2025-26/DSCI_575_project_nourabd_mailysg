@@ -30,6 +30,8 @@ The preprocessing steps are as follows :
     - if the given text is a list, transforms it into a string
 
 The following fields were used in the product retrieval workflow:
+
+
 - User reviews :
     - title
     - text
@@ -64,7 +66,7 @@ To download the data, follow the instructions below :
 
 2. Download the files by clicking on `review` and `meta` (as pictured below)
 
-    ![alt text](data_download.png)
+    ![alt text](results/img/data_download.png)
 
 You should now have 2 files downloaded : `Video_Games.jsonl` and `meta_Video_Games.jsonl`
 
@@ -117,4 +119,11 @@ To run the workflow, follow the instructions below :
 
 The results of the workflows can be found in the [results](results) folder.
 
-## Running the App
+### Running the App
+To run the web app, follow the instructions below :
+
+1. To run the app locally :
+    ```{bash}
+    streamlit run app/app.py 
+    ```
+2. This should automatically open a new window with the web app in your browser.
