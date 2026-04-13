@@ -17,17 +17,15 @@ The preprocessing implementation can be found in the [src/preprocess.py](src/pre
 
 The preprocessing steps are as follows :
 - extract item type, ESRB rating and date first available from `details` field from the item meta data 
-    - creating separate columns with the information allows for better retrieval during the query search
 - change the `price` field type to string 
-     - the field contained a lot of None values which were causing issues during preprocessing
 - remove all non-useful fields 
-    - justification defined above
 - merge the two datasets (user reviews and item meta data) 
-    - each user review now contains information about the product
 - preprocess the data
     - transform text to lowercase
     - removes all elements that aren't lowercase letters, numbers or whitespace
     - if the given text is a list, transforms it into a string
+
+More information about preprocessing can be found in the [Data exploration and preprocessing](notebooks/milestone1_exploration.ipynb) notebook.
 
 The following fields were used in the product retrieval workflow:
 
@@ -51,7 +49,7 @@ The following fields were used in the product retrieval workflow:
 
 More information about field selection can be found in the [Data exploration and preprocessing](notebooks/milestone1_exploration.ipynb) notebook.
 
-### Memory constraints
+### Sample Size Selection
 Due to storage and memory constraints, only the first 400k rows of the processed data were used in the following workflow.
 
 To change the amount of data used, follow the instructions below :
@@ -127,3 +125,11 @@ To run the web app, follow the instructions below :
     streamlit run app/app.py 
     ```
 2. This should automatically open a new window with the web app in your browser.
+3. To stop the app, press `ctrl` + `C` in the terminal. 
+
+#### Memory constraints
+In some cases (machines with low RAM) the web app crashes when loading both the BM25 and FAISS indices. If that situation occurs, here are 2 solutions :
+- Re-run the workflow with a smaller sample size 
+    - follow steps detailed in the [Sample Size Selection](#sample-size-selection) section
+- Use a smaller sample size for the BM25 search
+    - follow steps detailed in the [app](app/app.py) module

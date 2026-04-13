@@ -1,3 +1,8 @@
+"""
+If the web app crashes due to memorry constraints (low RAM), 
+use OPTION 2 in the get_bm25() function.
+"""
+
 import streamlit as st
 import pandas as pd
 import sys
