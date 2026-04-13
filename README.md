@@ -13,7 +13,7 @@ It can be found and downloaded at the following address : [amazon-reviews-2023](
 
 ## Data Preprocessing
 
-The preprocessing implementation can be found in the [src/preprocess.py](../src/preprocess.py) module.
+The preprocessing implementation can be found in the [src/preprocess.py](src/preprocess.py) module.
 
 The preprocessing steps are as follows :
 - extract item type, ESRB rating and date first available from `details` field from the item meta data 
@@ -28,6 +28,33 @@ The preprocessing steps are as follows :
     - transform text to lowercase
     - removes all elements that aren't lowercase letters, numbers or whitespace
     - if the given text is a list, transforms it into a string
+
+The following fields were used in the product retrieval workflow:
+- User reviews :
+    - title
+    - text
+    - parent_asin
+    - verified_purchase
+- Item meta data:
+    - title
+    - average_rating
+    - rating_number
+    - features
+    - description
+    - price
+    - store
+    - categories
+    - details
+    - parent_asin
+
+More information about field selection can be found in the [Data exploration and preprocessing](notebooks/milestone1_exploration.ipynb) notebook.
+
+### Memory constraints
+Due to storage and memory constraints, only the first 400k rows of the processed data were used in the following workflow.
+
+To change the amount of data used, follow the instructions below :
+1. Follow the link to the [src/preprocess.py](src/preprocess.py) module
+2. At the bottom of the module change the `sample_size` argumentof the `merged` function to the desired size.
 
 ## Instructions
 
@@ -64,7 +91,24 @@ To set up the workflow, follow the instructions below :
     conda env create -f environment.yml
     conda activate 575-proj
     ```
-4. Put the files `Video_Games.jsonl` and `meta_Video_Games.jsonl` downloaded above in the `data/raw` folder :
+
+4. Put the files `Video_Games.jsonl` and `meta_Video_Games.jsonl` downloaded above in the `data/raw` folder 
+
+### Running the workflow
+To run the workflow, follow the instructions below :
+
+1. Create the preprocessed corpus :
+
+    ```{bash}
+    python src/preprocess.py
+    ```
+
+2. Run the retrieval workflows :
+    
+    ```{bash}
+    python src/bm25.py 
+    python src/semantic.py
+    ```
 
     
     
