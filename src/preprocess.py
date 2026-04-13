@@ -108,7 +108,8 @@ def create_corpus(merged):
     merged.to_parquet('data/processed/processed_data.parquet', engine='pyarrow', compression='snappy')
     print(f'Preprocessing done!')
 
-merged_df = merged()
+# To adjust amount of data used, change sample_size below
+merged_df = merged(sample_size=400000)
 create_corpus(merged_df)
 
 
