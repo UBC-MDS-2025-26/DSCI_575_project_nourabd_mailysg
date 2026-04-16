@@ -3,18 +3,23 @@ A module that implements BM25 search on a list of 10 queries.
 
 Functions:
 - load_documents
+- bm25_retriever
 - build_index
 - save_index
 - load_index
-- bm25_search
+- bm25_score
+- bm25_invoke
 
 """
 
 from langchain_community.retrievers import BM25Retriever
 import pickle
 import pandas as pd
-from .tokenizer import create_documents, tokenize
-from .save_to_df import results_to_df
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from src.tokenizer import create_documents, tokenize
+from src.save_to_df import results_to_df
 
 
 def load_documents(parquet_path):
