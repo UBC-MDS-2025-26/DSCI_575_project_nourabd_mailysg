@@ -63,7 +63,7 @@ def process_user_reviews(user_reviews):
     return user_reviews.reset_index()
     
 
-def merge_data(sample_size=400000):
+def merge_data():
     """Merge meta data and user dataframes, returns a given sample of the data."""
 
     # Load the data
@@ -85,7 +85,7 @@ def merge_data(sample_size=400000):
                   how='inner')
     print('Dataframes merged!')
 
-    return merged[:sample_size]
+    return merged
 
 
 
@@ -128,7 +128,7 @@ def create_corpus(merged):
     print(f'Preprocessing done!')
 
 # To adjust amount of data used, change sample_size below
-merged_df = merge_data(sample_size=400000)
+merged_df = merge_data()
 create_corpus(merged_df)
 
 
