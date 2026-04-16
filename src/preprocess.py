@@ -3,8 +3,9 @@ A module that creates helper functions to preprocess and create the corpus to be
 
 Functions:
 - load_data
-- create_features
-- merged
+- process_meta_data
+- process_user_reviews
+- merge_data
 - preprocess
 - create_corpus
 """
@@ -25,7 +26,7 @@ def load_data(name, file):
     print(f'{name} loaded!')
     return record_list
 
-def create_features(meta_data):
+def process_meta_data(meta_data):
     """Add and edit meta data fields"""
 
     # Extract item type, ESRB rating and date first available from detail field
@@ -36,10 +37,33 @@ def create_features(meta_data):
     # Change price field type
     meta_data['price']=meta_data['price'].astype(str)
 
+    # Drop unused columns
+    meta_data = meta_data.drop(columns=['main_category','images','videos','bought_together','details','author','subtitle'])
+
+    # Rename title -> item_title
+    meta_data = meta_data.rename(columns={'title':'item_title'}) 
+
     return meta_data
+
+
+def process_user_reviews(user_reviews):
+    """Preprocess user reviews"""
+    # Keep only verified purchases
+    user_reviews = user_reviews[user_reviews['verified_purchase']==True]
+    
+    # Drop unused columns
+    user_reviews = user_reviews.drop(columns=['rating','images','asin','timestamp','user_id','helpful_vote','verified_purchase'])
+
+    # Rename title -> review_title
+    user_reviews = user_reviews.rename(columns={'title':'review_title'}) 
+
+    # Group reviews by product
+    user_reviews = user_reviews.groupby('parent_asin')[['review_title','text']].agg(list)
+
+    return user_reviews.reset_index()
     
 
-def merged(sample_size=400000):
+def merge_data(sample_size=400000):
     """Merge meta data and user dataframes, returns a given sample of the data."""
 
     # Load the data
@@ -48,14 +72,9 @@ def merged(sample_size=400000):
     print('Loading meta data ...')
     meta_data = pd.DataFrame(load_data('Meta data','data/raw/meta_Video_Games.jsonl'))
 
-    # Add new features to meta data 
-    meta_data = create_features(meta_data)
-    
-    # Keep only useful fields 
-    proc_meta_data = meta_data.drop(columns=['main_category','images','videos','bought_together','details','author','subtitle']).rename(columns={'title':'item_title'}) 
-
-    # Keep only verified purcahses and useful fields
-    proc_user_reviews = user_reviews[user_reviews['verified_purchase']==True].drop(columns=['rating','images','asin','timestamp','user_id','helpful_vote','verified_purchase']).rename(columns={'title':'review_title'}) 
+    # Process the data
+    proc_meta_data = process_meta_data(meta_data)
+    proc_user_reviews = process_user_reviews(user_reviews)
 
     print('Merging dataframes...')
 
@@ -109,7 +128,7 @@ def create_corpus(merged):
     print(f'Preprocessing done!')
 
 # To adjust amount of data used, change sample_size below
-merged_df = merged(sample_size=400000)
+merged_df = merge_data(sample_size=400000)
 create_corpus(merged_df)
 
 
