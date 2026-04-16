@@ -27,7 +27,7 @@ retriever = vectorstore.as_retriever(
 
 #context building
 def build_context(docs):
-    """Convert retrieved documents into a structured context string"""
+    """Convert retrieved documents into a prompt ready context block"""
     return "\n\n".join(
         f"Product: {doc.metadata.get('item_title', 'N/A')}\n"
         f"Rating: {doc.metadata.get('average_rating', 'N/A')}/5\n"
@@ -35,7 +35,6 @@ def build_context(docs):
         f"Description: {doc.metadata.get('description', 'N/A')[:200]}\n"
         f"Review Title: {doc.metadata.get('review_title', 'N/A')}\n"
         f"Review: {doc.metadata.get('text', 'N/A')[:300]}"
-        for doc in docs
-    )
+        for doc in docs)
 
 #prompt template 
