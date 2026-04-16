@@ -16,9 +16,16 @@ It can be found and downloaded at the following address : [amazon-reviews-2023](
 The preprocessing implementation can be found in the [src/preprocess.py](src/preprocess.py) module.
 
 The preprocessing steps are as follows :
-- extract item type, ESRB rating and date first available from `details` field from the item meta data 
-- change the `price` field type to string 
-- remove all non-useful fields 
+- process the item meta data :
+    - extract item type, ESRB rating and date first available from `details` field from the item meta data 
+    - change the `price` field type to string 
+    - drop unused columns 
+    - rename title `column` to `item_title`
+- process the user reviews :
+    - keep only verified purchases (`verified_purchase==True`)
+    - drop unused columns 
+    - rename title `column` to `review_title`
+    - group reviews by product
 - merge the two datasets (user reviews and item meta data) 
 - preprocess the data
     - transform text to lowercase
