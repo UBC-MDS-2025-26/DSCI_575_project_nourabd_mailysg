@@ -1,9 +1,9 @@
 import os
+#PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) #finding project root
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
-from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 
@@ -37,4 +37,23 @@ def build_context(docs):
         f"Review: {doc.metadata.get('text', 'N/A')[:300]}"
         for doc in docs)
 
-#prompt template 
+#prompt template
+
+
+#semantic rag chain 
+#temporary placeholders for prompt testing in notebook
+prompt = None 
+semantic_rag_chain = None
+
+
+semantic_rag_chain = (
+    {
+        "context": retriever | build_context,
+        "input": RunnablePassthrough()
+    }
+    | prompt
+    | llm
+    | StrOutputParser()
+    )
+
+
