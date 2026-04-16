@@ -1,21 +1,14 @@
-"""
-If the web app crashes due to memory constraints (low RAM), 
-use OPTION 2 in the get_bm25() function.
-"""
-
 import streamlit as st
 import pandas as pd
 import sys
 import os
-import pickle
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from src.semantic import load_index, semantic_search
 from src.bm25 import load_index as load_bm25_index
 from src.bm25 import bm25_search
 from src.save_to_df import results_to_df
 from src.tokenizer import create_documents
-from langchain_core.documents import Document
-from langchain_community.retrievers import BM25Retriever
+
 
 st.set_page_config(page_title="Video Game Search", layout="wide")
 st.title("\U0001F3AE Amazon Video Game Product Search")
@@ -34,34 +27,6 @@ def get_bm25():
     bm25_index = load_bm25_index('data/processed/bm25_index')
     docs = create_documents('data/processed/processed_data.parquet')
     
-    #OPTION 2: small sample (for low RAM machines), uncomment below code and comment out above code block
-
-    # df = pd.read_parquet('data/processed/processed_data.parquet').head(10000)
-    # docs = []
-    # for record in df.itertuples(index=True):
-    #     document = Document(
-    #         page_content=f"{record.item_title} {record.features} {record.description} {record.store} {record.categories} {record.item_type} {record.rated} {record.date_first_available} {record.review_title} {record.text}",
-    #         metadata={
-    #             "item_title": record.item_title,
-    #             "features": record.features,
-    #             "description": record.description,
-    #             "store": record.store,
-    #             "categories": record.categories,
-    #             "item_type": record.item_type,
-    #             "review_title": record.review_title,
-    #             "rated": record.rated,
-    #             "date_first_available": record.date_first_available,
-    #             "text": record.text,
-    #             "average_rating": record.average_rating,
-    #             "rating_number": record.rating_number,
-    #             "price": record.price,
-    #             "parent_asin": record.parent_asin
-    #         }
-    #     )
-    #     docs.append(document)
-    # retriever = BM25Retriever.from_documents(docs, k=3) #rebuilding index with smaller sample of docs
-    # bm25_index = retriever.vectorizer
-
     return bm25_index, docs
 
 # star rating function

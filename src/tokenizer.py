@@ -10,7 +10,7 @@ import pandas as pd
 from langchain_core.documents import Document
 
 
-def create_documents(parquet_path='data/processed/processed_data.parquet', doc_list_path='data/processed/doc_list.pkl'):
+def create_documents(parquet_path='data/processed/processed_data.parquet'):
     """
     This function tokenizes the given text into Langchain documents.
 
