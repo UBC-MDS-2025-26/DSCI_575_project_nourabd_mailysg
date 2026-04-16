@@ -16,6 +16,7 @@ import pandas as pd
 from .tokenizer import create_documents, tokenize
 from .save_to_df import results_to_df
 
+
 def load_documents(parquet_path):
     """Load document list needed for search"""
     print("Creating document list...")
@@ -23,10 +24,13 @@ def load_documents(parquet_path):
     print("Document list created!")
     return doc_list
 
-def retriever(doc_list, k=5):
+
+def bm25_retriever(doc_list, k=5):
     """Build the BM25 retriever"""
+    print("Building retriever...")
     retriever = BM25Retriever.from_documents(doc_list, k=k)
     return retriever
+
 
 def build_index(retriever):
     """Build the BM25 index"""
@@ -37,18 +41,20 @@ def build_index(retriever):
 
     return bm25_index
 
-def save_index(bm25_index,path):
+
+def save_index(bm25_index, path):
     """Save index as pickle file"""
-    print(f"Saving index...")
+    print("Saving index...")
 
     with open(f'{path}/bm25_index.pkl', 'wb') as f:
         pickle.dump(bm25_index, f)
 
     print(f"Index saved to {path}")
 
+
 def load_index(path):
     """Load index from pickle file"""
-    print(f"Loading index...")
+    print("Loading index...")
 
     with open(f'{path}/bm25_index.pkl', 'rb') as f:
         bm25_index = pickle.load(f)
@@ -57,15 +63,16 @@ def load_index(path):
 
     return bm25_index
 
+
 def bm25_score(bm25_index, query, doc_list, count=False, query_nb=False):
     """Implement BM25 search on given query to return score"""
-    if count==1 :
-        print(f"Searching query...")
+    if count == 1:
+        print("Searching query...")
 
     # Tokenize query
     tokenized_query = tokenize(query)
 
-    #Get BM25 scores
+    # Get BM25 scores
     scores = bm25_index.get_scores(tokenized_query)
     results_dict = sorted(zip(doc_list, scores), key=lambda x: x[1], reverse=True)
 
@@ -73,12 +80,14 @@ def bm25_score(bm25_index, query, doc_list, count=False, query_nb=False):
         print(f"{count}/{query_nb} queries searched")
 
     return results_dict
-       
-def bm25_invoke(retriever,query):
+
+
+def bm25_invoke(retriever, query):
     """Implement BM25 search on given query to return top k results"""
-    print(f"Searching query...")
+    print("Searching query...")
     result = retriever.invoke(query)
     return result
+
 
 if __name__ == "__main__":
     queries = [
@@ -99,11 +108,11 @@ if __name__ == "__main__":
 
     # Load documents
     docs = load_documents('data/processed/processed_data.parquet')
-    bm25_retriever = retriever(docs, k=1)
+    retriever = bm25_retriever(docs, k=1)
 
     # build and save index (run once)
-    # comment out these lines once you have generated bm25_index data 
-    bm25_index = build_index(bm25_retriever)
+    # comment out these lines once you have generated bm25_index data
+    bm25_index = build_index(retriever)
     save_index(bm25_index, 'data/processed/bm25_index')
 
     # Load index
