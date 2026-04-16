@@ -23,12 +23,14 @@ def load_documents(parquet_path):
     print("Document list created!")
     return doc_list
 
+def retriever(doc_list, k=5):
+    """Build the BM25 retriever"""
+    retriever = BM25Retriever.from_documents(doc_list, k=k)
+    return retriever
 
-def build_index(doc_list):
+def build_index(retriever):
     """Build the BM25 index"""
     print("Building index...")
-    retriever = BM25Retriever.from_documents(doc_list)
-
     # Retrieve index
     bm25_index = retriever.vectorizer
     print("Completed index build!")
@@ -55,8 +57,8 @@ def load_index(path):
 
     return bm25_index
 
-def bm25_search(bm25_index, query, doc_list, count=False, query_nb=False):
-    """Implement BM25 search on given query"""
+def bm25_score(bm25_index, query, doc_list, count=False, query_nb=False):
+    """Implement BM25 search on given query to return score"""
     if count==1 :
         print(f"Searching query...")
 
@@ -72,6 +74,11 @@ def bm25_search(bm25_index, query, doc_list, count=False, query_nb=False):
 
     return results_dict
        
+def bm25_invoke(retriever,query):
+    """Implement BM25 search on given query to return top k results"""
+    print(f"Searching query...")
+    result = retriever.invoke(query)
+    return result
 
 if __name__ == "__main__":
     queries = [
@@ -92,10 +99,11 @@ if __name__ == "__main__":
 
     # Load documents
     docs = load_documents('data/processed/processed_data.parquet')
+    bm25_retriever = retriever(docs, k=1)
 
     # build and save index (run once)
     # comment out these lines once you have generated bm25_index data 
-    bm25_index = build_index(docs)
+    bm25_index = build_index(bm25_retriever)
     save_index(bm25_index, 'data/processed/bm25_index')
 
     # Load index
@@ -106,7 +114,7 @@ if __name__ == "__main__":
     count = 1
     query_nb = len(queries)
     for query in queries:
-        results = bm25_search(bm25_index, query, docs, count, query_nb)
+        results = bm25_score(bm25_index, query, docs, count, query_nb)
         count += 1
         df = results_to_df(query, results, top_n=5)
         all_results.append(df)
