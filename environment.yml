@@ -17,3 +17,5 @@ dependencies:
     - nltk
     - langchain-huggingface
     - streamlit
+    - langchain-groq
+    - python-dotenv
