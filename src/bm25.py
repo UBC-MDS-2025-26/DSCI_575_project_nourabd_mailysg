@@ -32,8 +32,9 @@ def load_documents(parquet_path):
 
 def bm25_retriever(doc_list, k=5):
     """Build the BM25 retriever"""
-    print("Building retriever...")
+    print("Building BM25 retriever...")
     retriever = BM25Retriever.from_documents(doc_list, k=k)
+    print("Completed retriever build!")
     return retriever
 
 
@@ -47,26 +48,26 @@ def build_index(retriever):
     return bm25_index
 
 
-def save_index(bm25_index, path):
-    """Save index as pickle file"""
-    print("Saving index...")
+def save(file, path, type):
+    """Save file as pickle file"""
+    print(f"Saving {type}...")
 
-    with open(f'{path}/bm25_index.pkl', 'wb') as f:
-        pickle.dump(bm25_index, f)
+    with open(f'{path}/{type}.pkl', 'wb') as f:
+        pickle.dump(file, f)
 
-    print(f"Index saved to {path}")
+    print(f"{type} saved to {path}")
 
 
-def load_index(path):
+def load(path, type):
     """Load index from pickle file"""
-    print("Loading index...")
+    print(f"Loading {type}...")
 
-    with open(f'{path}/bm25_index.pkl', 'rb') as f:
-        bm25_index = pickle.load(f)
+    with open(f'{path}/{type}.pkl', 'rb') as f:
+        file = pickle.load(f)
 
-    print(f"Index loaded from {path}")
+    print(f"{type} loaded from {path}")
 
-    return bm25_index
+    return file
 
 
 def bm25_score(bm25_index, query, doc_list, count=False, query_nb=False):
@@ -113,15 +114,18 @@ if __name__ == "__main__":
 
     # Load documents
     docs = load_documents('data/processed/processed_data.parquet')
-    retriever = bm25_retriever(docs, k=1)
 
-    # build and save index (run once)
-    # comment out these lines once you have generated bm25_index data
+    # build and save index and retriever(run once)
+    # comment out these lines once you have generated bm25_index and retriver data
+    retriever = bm25_retriever(docs, k=1)
+    save(retriever, 'data/processed/bm25_index', 'retriever')
+
     bm25_index = build_index(retriever)
-    save_index(bm25_index, 'data/processed/bm25_index')
+    save(bm25_index, 'data/processed/bm25_index', 'bm25_index')
 
     # Load index
-    bm25_index = load_index('data/processed/bm25_index')
+    bm25_index = load('data/processed/bm25_index', 'bm25_index')
+    retriever = load('data/processed/bm25_index', 'retriever')
 
     # run queries and save results
     all_results = []
