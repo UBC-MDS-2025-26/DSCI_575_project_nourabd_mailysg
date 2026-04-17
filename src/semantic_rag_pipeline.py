@@ -6,6 +6,7 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
+from src.context_builder import build_context
 
 load_dotenv()
 
@@ -24,18 +25,6 @@ vectorstore = FAISS.load_local(
 retriever = vectorstore.as_retriever(
     search_type="similarity",
     search_kwargs={"k": 5})
-
-#context building
-def build_context(docs):
-    """Convert retrieved documents into a prompt ready context block"""
-    return "\n\n".join(
-        f"Product: {doc.metadata.get('item_title', 'N/A')}\n"
-        f"Rating: {doc.metadata.get('average_rating', 'N/A')}/5\n"
-        f"Price: {doc.metadata.get('price', 'N/A')}\n"
-        f"Description: {doc.metadata.get('description', 'N/A')[:200]}\n"
-        f"Review Title: {doc.metadata.get('review_title', 'N/A')}\n"
-        f"Review: {doc.metadata.get('text', 'N/A')[:300]}"
-        for doc in docs)
 
 #prompt template
 
