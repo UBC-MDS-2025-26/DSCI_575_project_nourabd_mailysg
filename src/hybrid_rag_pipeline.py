@@ -1,36 +1,34 @@
-from prompts import build_prompt, build_context
-from dotenv import load_dotenv
-from langchain_groq import ChatGroq
+"""
+Module that implements a hybrid RAG pipeline
+for the Amazon video game product search assistant.
+
+Pipeline includes:
+    - hyrbid retriever (40% BM25 and 60% semantic)
+    - context builder (src/context_builder.py)
+    - prompt template (src/prompts.py)
+    - LLM (llama-3.1-8b-instant) called using Groq API
+
+Functions:
+    - get_retriever: Returns a FAISS retriever for semantic search
+    - hybrid_rag_pipeline: Returns the full hybrid RAG pipeline
+"""
 import os
-from hybrid import hybrid_retriever
+import sys
+from dotenv import load_dotenv
+
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_groq import ChatGroq
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from src.prompts import prompt
+from src.bm25 import load_documents, load
+from src.semantic import load_index
+from src.context_builder import build_context
+from src.hybrid import hybrid_retriever
 
 
-def hybrid_rag_pipeline(query):
-    # Build hybrid retriever
-    retriever_hybrid = hybrid_retriever(parquet_path='data/processed/processed_data.parquet', index_path='data/processed/faiss_index', k=5)
-
-    # Prompt template
-    prompt = ChatPromptTemplate.from_template(
-    """
-    You must answer using ONLY the information in the context.
-
-    - If the answer is present, extract and summarize it clearly.
-    - Do NOT say "I don't know" if the answer exists in the context.
-    - Only say "I don't know" if the context truly does not contain the answer.
-
-    Context:
-    {context}
-
-    Question:
-    {input}
-
-    Answer:
-    """
-    )
-
+def hybrid_rag_pipeline(retriever, query):
     # LLM
     load_dotenv()
 
@@ -41,7 +39,7 @@ def hybrid_rag_pipeline(query):
     # Pipeline
     rag_chain = (
         {
-            "context": retriever_hybrid | build_context,
+            "context": retriever | build_context,
             "input": RunnablePassthrough()
         }
         | prompt
@@ -50,5 +48,9 @@ def hybrid_rag_pipeline(query):
     )
     return rag_chain.invoke(query)
 
-answer = hybrid_rag_pipeline("Nintendo switch screen protector")
-print(answer)
+# # To run the hybrid pipeline :
+# vector_retriever = load_index('data/processed/faiss_index')
+# bm25_retriever = load('data/processed/bm25_index', 'retriever')
+# retriever = hybrid_retriever(vector_retriever, bm25_retriever)
+# answer = hybrid_rag_pipeline(retriever, "Nintendo switch screen protector")
+# print(answer)
