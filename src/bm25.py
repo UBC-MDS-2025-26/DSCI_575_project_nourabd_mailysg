@@ -3,18 +3,24 @@ A module that implements BM25 search on a list of 10 queries.
 
 Functions:
 - load_documents
+- bm25_retriever
 - build_index
 - save_index
 - load_index
-- bm25_search
+- bm25_score
+- bm25_invoke
 
 """
 
 from langchain_community.retrievers import BM25Retriever
 import pickle
 import pandas as pd
-from .tokenizer import create_documents, tokenize
-from .save_to_df import results_to_df
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from src.tokenizer import create_documents, tokenize
+from src.save_to_df import results_to_df
+
 
 def load_documents(parquet_path):
     """Load document list needed for search"""
@@ -23,10 +29,14 @@ def load_documents(parquet_path):
     print("Document list created!")
     return doc_list
 
-def retriever(doc_list, k=5):
+
+def bm25_retriever(doc_list, k=5):
     """Build the BM25 retriever"""
+    print("Building BM25 retriever...")
     retriever = BM25Retriever.from_documents(doc_list, k=k)
+    print("Completed retriever build!")
     return retriever
+
 
 def build_index(retriever):
     """Build the BM25 index"""
@@ -37,35 +47,38 @@ def build_index(retriever):
 
     return bm25_index
 
-def save_index(bm25_index,path):
-    """Save index as pickle file"""
-    print(f"Saving index...")
 
-    with open(f'{path}/bm25_index.pkl', 'wb') as f:
-        pickle.dump(bm25_index, f)
+def save(file, path, type):
+    """Save file as pickle file"""
+    print(f"Saving {type}...")
 
-    print(f"Index saved to {path}")
+    with open(f'{path}/{type}.pkl', 'wb') as f:
+        pickle.dump(file, f)
 
-def load_index(path):
+    print(f"{type} saved to {path}")
+
+
+def load(path, type):
     """Load index from pickle file"""
-    print(f"Loading index...")
+    print(f"Loading {type}...")
 
-    with open(f'{path}/bm25_index.pkl', 'rb') as f:
-        bm25_index = pickle.load(f)
+    with open(f'{path}/{type}.pkl', 'rb') as f:
+        file = pickle.load(f)
 
-    print(f"Index loaded from {path}")
+    print(f"{type} loaded from {path}")
 
-    return bm25_index
+    return file
+
 
 def bm25_score(bm25_index, query, doc_list, count=False, query_nb=False):
     """Implement BM25 search on given query to return score"""
-    if count==1 :
-        print(f"Searching query...")
+    if count == 1:
+        print("Searching query...")
 
     # Tokenize query
     tokenized_query = tokenize(query)
 
-    #Get BM25 scores
+    # Get BM25 scores
     scores = bm25_index.get_scores(tokenized_query)
     results_dict = sorted(zip(doc_list, scores), key=lambda x: x[1], reverse=True)
 
@@ -73,12 +86,14 @@ def bm25_score(bm25_index, query, doc_list, count=False, query_nb=False):
         print(f"{count}/{query_nb} queries searched")
 
     return results_dict
-       
-def bm25_invoke(retriever,query):
+
+
+def bm25_invoke(retriever, query):
     """Implement BM25 search on given query to return top k results"""
-    print(f"Searching query...")
+    print("Searching query...")
     result = retriever.invoke(query)
     return result
+
 
 if __name__ == "__main__":
     queries = [
@@ -99,15 +114,18 @@ if __name__ == "__main__":
 
     # Load documents
     docs = load_documents('data/processed/processed_data.parquet')
-    bm25_retriever = retriever(docs, k=1)
 
-    # build and save index (run once)
-    # comment out these lines once you have generated bm25_index data 
-    bm25_index = build_index(bm25_retriever)
-    save_index(bm25_index, 'data/processed/bm25_index')
+    # build and save index and retriever(run once)
+    # comment out these lines once you have generated bm25_index and retriver data
+    retriever = bm25_retriever(docs, k=1)
+    save(retriever, 'data/processed/bm25_index', 'retriever')
+
+    bm25_index = build_index(retriever)
+    save(bm25_index, 'data/processed/bm25_index', 'bm25_index')
 
     # Load index
-    bm25_index = load_index('data/processed/bm25_index')
+    bm25_index = load('data/processed/bm25_index', 'bm25_index')
+    retriever = load('data/processed/bm25_index', 'retriever')
 
     # run queries and save results
     all_results = []
