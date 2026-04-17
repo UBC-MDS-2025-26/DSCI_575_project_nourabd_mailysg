@@ -20,20 +20,16 @@ embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-
 vectorstore = FAISS.load_local(
     'data/processed/faiss_index',
     embeddings,
-    allow_dangerous_deserialization=True)
+    allow_dangerous_deserialization=True
+)
 
 retriever = vectorstore.as_retriever(
     search_type="similarity",
     search_kwargs={"k": 5})
 
-#prompt template
-
+#prompt import
 
 #semantic rag chain 
-#temporary placeholders for prompt testing in notebook
-prompt = None 
-semantic_rag_chain = None
-
 
 semantic_rag_chain = (
     {
