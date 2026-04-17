@@ -4,8 +4,7 @@ import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from src.semantic import load_index, semantic_search
-from src.bm25 import load_index as load_bm25_index
-from src.bm25 import bm25_score
+from src.bm25 import load, bm25_score
 from src.save_to_df import results_to_df, top_k_to_df
 from src.tokenizer import create_documents
 from src.hybrid import hybrid_retriever,hybrid_results
@@ -25,7 +24,7 @@ def get_semantic():
 
 @st.cache_resource
 def get_bm25():
-    return load_bm25_index('data/processed/bm25_index')
+    return load('data/processed/bm25_index', 'bm25_index')
 
 @st.cache_resource
 def get_docs():
@@ -33,11 +32,11 @@ def get_docs():
 
 @st.cache_resource
 def get_bm25_retriever():
-    return create_documents('data/processed/processed_data.parquet')
+    return load('data/processed/bm25_index', 'retriever')
 
 @st.cache_resource
-def get_hybrid():
-    return hybrid_retriever()
+def get_hybrid(_vector_retriever, _bm25_retriever):
+    return hybrid_retriever(_vector_retriever, _bm25_retriever)
 
 # star rating function
 def rating_to_stars(rating):
@@ -138,31 +137,32 @@ with rag :
     # query input box
     rag_query = st.text_input("Search for a product...", placeholder="e.g. Headphones")
 
-    # if query:
-    #     with st.spinner("Searching..."):
-    #         retriever = get_hybrid()
-    #         results = hybrid_results(query)
-    #         df = top_k_to_df(query, results, top_n=3)
+    if rag_query:
+        with st.spinner("Searching..."):
+            vector_store = get_semantic()
+            bm25_retriever = get_bm25_retriever()
+            retriever = get_hybrid(vector_store, bm25_retriever)
+            results = hybrid_results(rag_query, retriever)
+            df = top_k_to_df(rag_query, results, top_n=3)
 
-    #         st.markdown(f"**Top {len(df)} results for:** *{query}*")
+            st.markdown(f"**Top {len(df)} results for:** *{rag_query}*")
 
-    #         for i, row in df.iterrows():
-    #             with st.container(border=True):
-    #                 col1, col2 = st.columns([3, 1])
-    #                 with col1:
-    #                     st.markdown(f"### {row['Product title'].title()}")
-    #                     st.markdown("**Review:**")
-    #                     st.write(row['Review'])
-    #                 with col2:
-    #                     st.markdown(rating_to_stars(row['Rating']), unsafe_allow_html=True)
-    #                     st.metric("Similarity score", round(row['Score'], 2))
-    #                     col_up, col_down = st.columns(2)
-    #                     with col_up:
-    #                         if st.button("\U0001F44D", key=f"bm25_up_{i}"):
-    #                             save_feedback(query, row['Product title'], "thumbs_up", mode)
-    #                             st.success("Thanks for your feedback!")
-    #                     with col_down:
-    #                         if st.button("\U0001F44E", key=f"bm25_down_{i}"):
-    #                             save_feedback(query, row['Product title'], "thumbs_down", mode)
-    #                             st.success("Thanks for your feedback!")
+            for i, row in df.iterrows():
+                with st.container(border=True):
+                    col1, col2 = st.columns([3, 1])
+                    with col1:
+                        st.markdown(f"### {row['Product title'].title()}")
+                        st.markdown("**Review:**")
+                        st.write(row['Review'])
+                    with col2:
+                        st.markdown(rating_to_stars(row['Rating']), unsafe_allow_html=True)
+                        col_up, col_down = st.columns(2)
+                        with col_up:
+                            if st.button("\U0001F44D", key=f"hybrid_up_{i}"):
+                                save_feedback(rag_query, row['Product title'], "thumbs_up", mode='hybrid')
+                                st.success("Thanks for your feedback!")
+                        with col_down:
+                            if st.button("\U0001F44E", key=f"hybrid_down_{i}"):
+                                save_feedback(rag_query, row['Product title'], "thumbs_down", mode='hybrid')
+                                st.success("Thanks for your feedback!")
 
