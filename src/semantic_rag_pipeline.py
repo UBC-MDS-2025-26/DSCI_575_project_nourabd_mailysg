@@ -1,5 +1,4 @@
 import os
-#PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) #finding project root
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -7,36 +6,43 @@ from langchain_community.vectorstores import FAISS
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from src.context_builder import build_context
+from src.prompts import prompt
+
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) #finding project root
 
 load_dotenv()
 
+#llm API call
 llm = ChatGroq(
     model="llama-3.1-8b-instant",
     api_key=os.getenv("GROQ_API_KEY"))
 
-#load existing faiss index 
+#embeddings + vector store 
 embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
 vectorstore = FAISS.load_local(
-    'data/processed/faiss_index',
+    os.path.join(PROJECT_ROOT, 'data/processed/faiss_index'),
     embeddings,
     allow_dangerous_deserialization=True
 )
 
-retriever = vectorstore.as_retriever(
-    search_type="similarity",
-    search_kwargs={"k": 5})
-
-#prompt import
+#retriever
+def get_retriever(k=5): #using top 5 docs
+    """Return FAISS retriever"""
+    return vectorstore.as_retriever(
+        search_type="similarity",
+        search_kwargs={"k": k})
 
 #semantic rag chain 
-
-semantic_rag_chain = (
-    {
-        "context": retriever | build_context,
-        "input": RunnablePassthrough()
-    }
-    | prompt
-    | llm
-    | StrOutputParser()
+def get_semantic_rag_chain():
+    """Return semantic RAG chain"""
+    retriever = get_retriever()
+    return (
+        {
+            "context": retriever | build_context,
+            "input": RunnablePassthrough()
+        }
+        | prompt
+        | llm
+        | StrOutputParser()
     )
