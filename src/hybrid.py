@@ -13,20 +13,18 @@ from src.bm25 import load
 from src.semantic import load_index
 
 
-def hybrid_retriever(data_path='data/processed'):
+def hybrid_retriever(vector_retriever, bm25_retriever):
     """Build hybrid retriever using 40% BM25 and 60% semantic weighting"""
     
-    print('Loading semantic retriever...')
-    vector_retriever = load_index(f'{data_path}/faiss_index').as_retriever()
-    print('Loading BM25 retriever...')
-    bm25_retriever = load(f'{data_path}/bm25_index', 'retriever')
+    print('Creating hybrid retriever...')
+    vector_retriever = vector_retriever.as_retriever()
 
     # Create the ensemble
-    print('Creating hybrid retriever...')
     retriever = EnsembleRetriever(
         retrievers=[bm25_retriever, vector_retriever],
         weights=[0.4, 0.6]
     )
+    print('Completed hybrid retriever!')
     return retriever
 
 
@@ -38,6 +36,8 @@ def hybrid_results(query, retriever):
     return results
 
 
-retriever = hybrid_retriever()
+vector_retriever = load_index('data/processed/faiss_index')
+bm25_retriever = load('data/processed/bm25_index', 'retriever')
+retriever = hybrid_retriever(vector_retriever, bm25_retriever)
 results = hybrid_results('headphones', retriever)
 print(results)
