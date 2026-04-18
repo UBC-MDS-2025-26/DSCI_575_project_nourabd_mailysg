@@ -1,4 +1,4 @@
-# \U0001F3AE Video Game Product Query Assistant
+# &#127918; Video Game Product Query Assistant
 
 ## Overview
 
