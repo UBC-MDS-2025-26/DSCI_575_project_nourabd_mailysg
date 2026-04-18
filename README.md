@@ -108,11 +108,11 @@ The hybrid RAG pipeline combines BM25 keyword search and semantic search using L
 
 ### BM25 Search 
 
-BM25 is a keyword-based retrieval algorithm that scores documents based on term frequency and inverse document frequency. It tokenizes the query and matches against metadata and reviews in our product corpus. Results using BM25 on example queries can be found in `results/bm25_results.csv`.
+BM25 is a keyword-based retrieval algorithm that scores documents based on term frequency and inverse document frequency. It uses a lexical index built with LangChain's `BM25Retriever` and is saved as a pickle file. It tokenizes the query and matches against metadata and reviews in our product corpus. Results using BM25 on example queries can be found in `results/bm25_results.csv`.
 
 ### Semantic Search 
 
-Semantic search uses vector embeddings to find products that are semantically similar to a user's query, even when keywords don't match. Results using Semantic search on example queries are saved to `results/semantic_results.csv`.
+Semantic search uses vector embeddings to find products that are semantically similar to a user's query, even when keywords don't match. Documents are indexed using FAISS with L2 distance where a lower score indicates that they are more similar.Results using Semantic search on example queries are saved to `results/semantic_results.csv`.
 
 ## Instructions
 
