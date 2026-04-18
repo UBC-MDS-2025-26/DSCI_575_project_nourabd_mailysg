@@ -9,7 +9,7 @@ Pipeline includes:
     - LLM (llama-3.1-8b-instant) called using Groq API
 
 Functions:
-    - get_retriever: Returns a FAISS retriever for semantic search
+    - get_retriever: Returns a hyrbid retriever for hybrid search
     - hybrid_rag_pipeline: Returns the full hybrid RAG pipeline
 """
 import os
@@ -48,9 +48,11 @@ def hybrid_rag_pipeline(retriever, query):
     )
     return rag_chain.invoke(query)
 
-# # To run the hybrid pipeline :
-# vector_retriever = load_index('data/processed/faiss_index')
-# bm25_retriever = load('data/processed/bm25_index', 'retriever')
-# retriever = hybrid_retriever(vector_retriever, bm25_retriever)
-# answer = hybrid_rag_pipeline(retriever, "Nintendo switch screen protector")
-# print(answer)
+def get_retriever():
+    vector_retriever = load_index('data/processed/faiss_index')
+    bm25_retriever = load('data/processed/bm25_index', 'retriever')
+    return hybrid_retriever(vector_retriever, bm25_retriever)
+
+
+
+
