@@ -4,16 +4,19 @@ import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from src.semantic import load_index, semantic_search
-from src.bm25 import load_index as load_bm25_index
-from src.bm25 import bm25_search
-from src.save_to_df import results_to_df
+from src.bm25 import load, bm25_score
+from src.save_to_df import results_to_df, top_k_to_df
 from src.tokenizer import create_documents
+from src.hybrid import hybrid_retriever,hybrid_results
+from src.hybrid_rag_pipeline import hybrid_rag_pipeline 
 
 
 st.set_page_config(page_title="Video Game Search", layout="wide")
 st.title("\U0001F3AE Amazon Video Game Product Search")
 st.markdown("Search for video game products using keyword (BM25) or semantic search.")  # ← add here
 st.divider()
+
+search, rag = st.tabs(["Search Only (Milestone 1)", "RAG Mode"])
 
 # load index on demand - separately depending on which radio button selected due to RAM restrictions
 @st.cache_resource
@@ -22,12 +25,21 @@ def get_semantic():
 
 @st.cache_resource
 def get_bm25():
-     # OPTION 1: full data 
+    return load('data/processed/bm25_index', 'bm25_index')
 
-    bm25_index = load_bm25_index('data/processed/bm25_index')
-    docs = create_documents('data/processed/processed_data.parquet')
-    
-    return bm25_index, docs
+# load documents
+@st.cache_resource
+def get_docs():
+    return create_documents('data/processed/processed_data.parquet')
+
+# Load retrievers
+@st.cache_resource
+def get_bm25_retriever():
+    return load('data/processed/bm25_index', 'retriever')
+
+@st.cache_resource
+def get_hybrid_retriever(_vector_retriever, _bm25_retriever):
+    return hybrid_retriever(_vector_retriever, _bm25_retriever)
 
 # star rating function
 def rating_to_stars(rating):
@@ -54,68 +66,117 @@ def save_feedback(query, item_title, feedback, mode):
         new_row.to_csv(feedback_path, mode='a', header=False, index=False)
     else:
         new_row.to_csv(feedback_path, index=False)
+        
+# Search tab
+with search :
+    # radio button, model selection
+    mode = st.radio("Search Mode", ["Semantic", "BM25"], horizontal=True)
 
-# radio button, model selection
-mode = st.radio("Search Mode", ["Semantic", "BM25"], horizontal=True)
+    # query input box
+    query = st.text_input("Search for a product...", placeholder="e.g. Single-player games suitable for children")
 
-# query input box
-query = st.text_input("Search for a product...")
+    # results from models
+    if query:
+        with st.spinner("Searching..."):
+            #semantic search
+            if mode == "Semantic":
+                vector_store = get_semantic()
+                results = semantic_search(vector_store, query, k=50)
+                df = results_to_df(query, results, top_n=3)
 
-# results from models
-if query:
-    with st.spinner("Searching..."):
-        #semantic search
-        if mode == "Semantic":
+                st.markdown(f"**Top {len(df)} results for:** *{query}*")
+
+                for i, row in df.iterrows():
+                    with st.container(border=True):
+                        col1, col2 = st.columns([3, 1])
+                        with col1:
+                            st.markdown(f"### {row['Product title'].title()}")
+                            st.markdown("**Review:**")
+                            st.write(row['Review'])
+                        with col2:
+                            st.markdown(rating_to_stars(row['Rating']), unsafe_allow_html=True)
+                            st.metric("Similarity score", round(row['Score'], 2))
+                            with st.container(border=True):
+                                st.markdown("**Rate the recommendation:**")
+                                col_up, col_down = st.columns(2)
+                                with col_up:
+                                    if st.button("\U0001F44D Helpful", key=f"sem_up_{i}"):
+                                        save_feedback(query, row['Product title'], "thumbs_up", mode)
+                                        st.success("Thanks for your feedback!")
+                                with col_down:
+                                    if st.button("\U0001F44E Unhelpful", key=f"sem_down_{i}"):
+                                        save_feedback(query, row['Product title'], "thumbs_down", mode)
+                                        st.success("Thanks for your feeback!")
+            #BM25
+            elif mode == "BM25":
+                bm25_index = get_bm25()
+                docs = get_docs()
+                results = bm25_score(bm25_index, query, docs, count=1, query_nb=1)
+                df = results_to_df(query, results, top_n=3)
+
+                st.markdown(f"**Top {len(df)} results for:** *{query}*")
+
+                for i, row in df.iterrows():
+                    with st.container(border=True):
+                        col1, col2 = st.columns([3, 1])
+                        with col1:
+                            st.markdown(f"### {row['Product title'].title()}")
+                            st.markdown("**Review:**")
+                            st.write(row['Review'])
+                        with col2:
+                            st.markdown(rating_to_stars(row['Rating']), unsafe_allow_html=True)
+                            st.metric("Similarity score", round(row['Score'], 2))
+                            with st.container(border=True):
+                                st.markdown("**Rate the recommendation:**")
+                                col_up, col_down = st.columns(2)
+                                with col_up:
+                                    if st.button("\U0001F44D Helpful", key=f"bm25_up_{i}"):
+                                        save_feedback(query, row['Product title'], "thumbs_up", mode)
+                                        st.success("Thanks for your feedback!")
+                                with col_down:
+                                    if st.button("\U0001F44E Unhelpful", key=f"bm25_down_{i}"):
+                                        save_feedback(query, row['Product title'], "thumbs_down", mode)
+                                        st.success("Thanks for your feedback!")
+
+# RAG tab :
+with rag :
+    # query input box
+    rag_query = st.text_input("Search for a product...", placeholder="e.g. Single-player games suitable for children", key='rag')
+
+    # Hybrid RAG
+    if rag_query:
+        with st.spinner("Searching..."):
             vector_store = get_semantic()
-            results = semantic_search(vector_store, query, k=50)
-            df = results_to_df(query, results, top_n=3)
+            bm25_retriever = get_bm25_retriever()
+            retriever = get_hybrid_retriever(vector_store, bm25_retriever)
+            results = hybrid_results(rag_query, retriever)
+            df = top_k_to_df(rag_query, results, top_n=5)
+            rag_results = hybrid_rag_pipeline(retriever, rag_query)
 
-            st.markdown(f"**Top {len(df)} results for:** *{query}*")
+            with st.container(border=True):
+                st.markdown(f"### Assistant recommendations :")
+                with st.chat_message("assistant"):
+                    st.markdown(rag_results)
 
-            for i, row in df.iterrows():
-                with st.container(border=True):
-                    col1, col2 = st.columns([3, 1])
-                    with col1:
-                        st.markdown(f"### {row['Product title'].title()}")
-                        st.markdown("**Review:**")
-                        st.write(row['Review'])
-                    with col2:
-                        st.markdown(rating_to_stars(row['Rating']), unsafe_allow_html=True)
-                        st.metric("Similarity score", round(row['Score'], 2))
-                        col_up, col_down = st.columns(2)
-                
-                        with col_up:
-                            if st.button("\U0001F44D", key=f"sem_up_{i}"):
-                                save_feedback(query, row['Product title'], "thumbs_up", mode)
-                                st.success("Thanks for your feedback!")
-                        with col_down:
-                            if st.button("\U0001F44E", key=f"sem_down_{i}"):
-                                save_feedback(query, row['Product title'], "thumbs_down", mode)
-                                st.success("Thanks for your feeback!")
-        #BM25
-        elif mode == "BM25":
-            bm25_index, docs = get_bm25()
-            results = bm25_search(bm25_index, query, docs, count=1, query_nb=1)
-            df = results_to_df(query, results, top_n=3)
+            with st.container(border=True):
+                st.markdown(f"**Top {len(df)} results for:** *{rag_query}*")
 
-            st.markdown(f"**Top {len(df)} results for:** *{query}*")
+                for i, row in df.iterrows():
+                    with st.container(border=True):
+                        col1, col2 = st.columns([3, 1])
+                        with col1:
+                            st.markdown(f"### {row['Product title'].title()}")
+                            st.markdown(rating_to_stars(row['Rating']), unsafe_allow_html=True)
+                        with col2:
+                            with st.container(border=True):
+                                st.markdown("**Rate the recommendation:**")
+                                col_up, col_down = st.columns(2)
+                                with col_up:
+                                    if st.button("\U0001F44D Helpful", key=f"hybrid_up_{i}"):
+                                        save_feedback(rag_query, row['Product title'], "thumbs_up", mode='hybrid')
+                                        st.success("Thanks for your feedback!")
+                                with col_down:
+                                    if st.button("\U0001F44E Unhelpful", key=f"hybrid_down_{i}"):
+                                        save_feedback(rag_query, row['Product title'], "thumbs_down", mode='hybrid')
+                                        st.success("Thanks for your feedback!")
 
-            for i, row in df.iterrows():
-                with st.container(border=True):
-                    col1, col2 = st.columns([3, 1])
-                    with col1:
-                        st.markdown(f"### {row['Product title'].title()}")
-                        st.markdown("**Review:**")
-                        st.write(row['Review'])
-                    with col2:
-                        st.markdown(rating_to_stars(row['Rating']), unsafe_allow_html=True)
-                        st.metric("Similarity score", round(row['Score'], 2))
-                        col_up, col_down = st.columns(2)
-                        with col_up:
-                            if st.button("\U0001F44D", key=f"bm25_up_{i}"):
-                                save_feedback(query, row['Product title'], "thumbs_up", mode)
-                                st.success("Thanks for your feedback!")
-                        with col_down:
-                            if st.button("\U0001F44E", key=f"bm25_down_{i}"):
-                                save_feedback(query, row['Product title'], "thumbs_down", mode)
-                                st.success("Thanks for your feedback!")
