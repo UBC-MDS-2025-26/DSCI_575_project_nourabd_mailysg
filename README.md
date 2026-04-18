@@ -85,12 +85,9 @@ The following fields were used in the product retrieval workflow:
 
 More information about field selection can be found in the [Data exploration and preprocessing](notebooks/milestone1_exploration.ipynb) notebook.
 
-### Sample Size Selection
-Due to storage and memory constraints, only the first 400k rows of the processed data were used in the following workflow.
+### Dataset Size
 
-To change the amount of data used, follow the instructions below :
-1. Follow the link to the [src/preprocess.py](src/preprocess.py) module
-2. At the bottom of the module, change the `sample_size` argument of the `merged` function to the desired size.
+**Important Note**: The dataset is processed at the product level, all reviews for the same product are aggregated into a single row, so there are approximately 130K unique products after processing. As a result, we recommend running the workflow on a machine with a minimum of 16 GB RAM. The web app may crash or run slowly on machines with 8GB RAM due to the memory required to load both the FAISS and BM25 indexes simultaneously.
 
 ## Instructions
 
