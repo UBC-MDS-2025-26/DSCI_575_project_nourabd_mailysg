@@ -35,7 +35,7 @@ To view all prompts, refer to [milestone2_rag.ipynb](https://github.com/UBC-MDS/
 
 ##  RAG Evaluation
 
-To view all RAG query results, refer to [milestone2_rag.ipynb](https://github.com/UBC-MDS/DSCI_575_project_nourabd_mailysg/blob/main/notebooks/milestone2_rag.ipynb).
+To view all RAG query results, including manual ratings on the accuracy, completeness and fluency of queries, refer to [milestone2_rag.ipynb](https://github.com/UBC-MDS/DSCI_575_project_nourabd_mailysg/blob/main/notebooks/milestone2_rag.ipynb).
 
 ### 1. **Query** : nintendo switch screen protector
 **RAG response:**
@@ -153,3 +153,7 @@ The pipeline also sometimes returns products that directly contradict the query 
 #### Suggestions
 Refining the LLM prompt to specifically skip products that directly contradict the query, whether through the product itself (query 4) or the reviews (query 1).
 Adding a ranking step after running the hybrid retriever to reorder the products before adding them as context for the LLM might help make the recommendations more relevant to the query.
+
+## Notes on Web App Design
+
+The app uses a tab-based interface to separate Search Mode (from Milestone 1) and RAG Mode. For the RAG mode display, we're including both the LLM's output as well as the retrieved documents. Since the LLM reasons over top k (5 in our case) documents from the retrievers, we chose to display all 5 products along with the LLM output, instead of 3, to avoid confusion if the LLM references a product that might not be in the shorter, top-3 list. We implemented a scrollbar to keep the UI clean and avoid overwhelming the page layout with long product lists, but this way, users can still see all top 5 products if they wish too.
