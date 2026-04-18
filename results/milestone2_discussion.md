@@ -114,26 +114,41 @@ To view all RAG query results, refer to [milestone2_rag.ipynb](https://github.co
 >* **Gamepad Controlador** (Rating: 3.0/5) - This product has a poor battery life, and I would not recommend it.
 >
 >Overall, based on the reviews and ratings provided, I believe that the Pickle Power 2 Pack 2000mah PS4 PS4 Pro Battery Replacement is the best option for a PS4 controller with good battery life.
-*Evaluation** : 
+**Evaluation** : 
 - The products listed don't really match what the query is asking for. Instead of controller options, the products listed are replacement batteries for a controller.
 - One of the products is also the opposite of what the query requires (poor battery life).
 
-### 5. **Query**: good single player story game for a beginner who just got their first playstation under $50
-|Dimension | What to assess | yes/no |
-|----------|----------------|--------|
-|Accuracy|Is the answer factually correct based on the reviews?||
-|Completeness|Does the answer address all aspects of the question?||
-|Fluency|Is the answer natural, clear, and easy to read?||
+### 5. **Query**: best wireless gaming headset under $100
+**RAG response:**
+>Based on the reviews and ratings provided, I recommend the following wireless gaming headsets under $100:
+>
+>1. **Plantronics Rig 800LX Wireless Gaming Headset for Xbox One**:
+>	* Rating: 4.2/5
+>	* Price: $69.99
+>	* Reviewer praise: "awesome sound", "great deal", "comfortable", "long battery life"
+>	* Consider: This headset has received positive reviews for its sound quality, comfort, and battery life. However, some reviewers have reported issues with the microphone and connectivity.
+>2. **Corsair Void RGB Elite Wireless Premium Gaming Headset with 7.1 Surround Sound (Carbon)**:
+>	* Rating: 4.4/5
+>	* Price: $73.95 (renewed)
+>	* Reviewer praise: "amazing sound", "great quality", "fantastic headset", "comfortable"
+>	* Consider: This headset has received high praise for its sound quality, comfort, and build quality. However, some reviewers have reported issues with the microphone and battery life.
+>
+>While both headsets are under $100, the Plantronics Rig 800LX is a more affordable option, but it has received some negative reviews regarding the microphone and connectivity. The Corsair Void RGB Elite is a more premium option, but it has received some criticism regarding the microphone and battery life. Ultimately, the best headset for you will depend on your specific needs and preferences.
+
+**Evaluation** : 
+- The query specifically asks for the best product but here it recommends 2.
+- However, all the other aspects of the query are met and the detailed descriptions of each products are very clear.
 
 ### Summary of Results
 
 #### Key Observations and Overall Performance
-The RAG pipeline performs well on keyword based queries (like query 1), where it returned relevant products in a clear and detailed manner. However, on semantic based queries which are broader or more nuanced, it struggles to find truly relevant products (like query 4) that respond to every aspect of the query. Overall, the pipeline does return good recommendations but the quality of the products depends on how the query is defined.
+The RAG pipeline performs well on keyword based queries (like query 1), where it returned relevant products in a clear and detailed manner. However, on semantic based queries which are broader or more nuanced, it struggles to find truly relevant products (like query 4) that respond to every aspect of the query. The number of products it recommends also seems to be random, even when a specific number of products are asked (like in query 5 where the best products implies we only want 1). Overall, the pipeline does return good recommendations but the quality of the products depends on how the query is defined.
 
 #### Limitations of Hybrid RAG Workflow
 The hybrid retriever struggles to distinguish between products that are related to the query and those that satisfy all its aspects (like in query 4).
 
 The pipeline also sometimes returns products that directly contradict the query (like in query 4), which might be caused by the hybrid retriever not being able to fully grasp the meaning of the documents it passes to the context for the LLM.
+
 
 #### Suggestions
 Refining the LLM prompt to specifically skip products that directly contradict the query, whether through the product itself (query 4) or the reviews (query 1).
