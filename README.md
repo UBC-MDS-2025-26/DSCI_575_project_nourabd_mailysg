@@ -4,6 +4,35 @@
 
 This project builds a web app through which users can interact with a product query assistant that implements BM25 and semantic search to retrieve product recommendations.
 
+## RAG Workflow Diagrams
+
+### Semantic RAG Pipeline 
+
+```mermaid
+flowchart LR
+    Q[Query] --> E[Embeddings\nall-MiniLM-L6-v2]
+    E --> VS[Vector Store\nFAISS]
+    VS --> AP[Augmented Prompt\nbuild_context]
+    Q --> AP
+    AP --> LLM[LLM\nLlama 3.1 8B via Groq]
+    LLM --> O[Output\nProduct Recommendation]
+```
+
+### Hybrid RAG Pipeline 
+
+```mermaid
+flowchart LR
+    Q[Query] --> T[Tokenization]
+    Q --> E[Embeddings\nall-MiniLM-L6-v2]
+    T --> BM25[BM25 Retrieval]
+    E --> VS[Vector Store\nFAISS]
+    BM25 -->|w1=0.4| RR[Reranker\nReciprocal Rank Fusion]
+    VS -->|w2=0.6| RR
+    RR --> AP[Augmented Prompt\nbuild_context]
+    Q --> AP
+    AP --> LLM[LLM\nLlama 3.1 8B via Groq]
+    LLM --> O[Output\nProduct Recommendation]
+```
 
 ## Dataset Description
 
