@@ -156,9 +156,7 @@ To set up the workflow, follow the instructions below :
 
 A free API key can be obtained at [console.groq.com](https://console.groq.com). Follow the steps to generate a free-tier API key. Please note that since it is a free tier token, rate limit constraints apply.
 
-The `.env` file should contain the below:
-
-```GROQ_API_KEY=your_key_here```
+The `.env` file should contain: ```GROQ_API_KEY=your_key_here```
 
 ### Running the workflow
 To run the workflow, follow the instructions below :
@@ -183,7 +181,7 @@ To run the workflow, follow the instructions below :
 
 The results of the semantic search and BM25 search workflows can be found in the [results](results) folder. The scripts should also produce 2 folders ```faiss_index``` and ```bm25_index``` with the retriever, pkl and index files that will be used to run the app. 
 
-To view example query results from the Hybrid rag worflow, please refer to the data exploration [notebook](https://github.com/UBC-MDS/DSCI_575_project_nourabd_mailysg/blob/main/notebooks/milestone2_rag.ipynb). Otherwise, try the RAG system out for yourself by querying the app. See below instructions.
+To view example query results from the Hybrid RAG worflow, please refer to the data exploration [notebook](https://github.com/UBC-MDS/DSCI_575_project_nourabd_mailysg/blob/main/notebooks/milestone2_rag.ipynb). Otherwise, try the RAG system out by querying the app. See below instructions.
 
 ### Running the App
 To run the web app, follow the instructions below :
