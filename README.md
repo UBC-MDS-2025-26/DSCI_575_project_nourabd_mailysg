@@ -127,6 +127,14 @@ To set up the workflow, follow the instructions below :
 
 4. Put the files `Video_Games.jsonl` and `meta_Video_Games.jsonl` downloaded above in the `data/raw` folder 
 
+5. Create a `.env` file in the project root and add your Groq API key:
+
+A free API key can be obtained at [console.groq.com](https://console.groq.com). Follow the steps to generate a free-tier API key. Please note that since it is a free tier token, rate limit constraints apply.
+
+The `.env` file should contain the below:
+
+```GROQ_API_KEY=your_key_here```
+
 ### Running the workflow
 To run the workflow, follow the instructions below :
 
