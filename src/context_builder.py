@@ -1,4 +1,10 @@
-#context building
+"""
+A module for building context from retrieved documents for RAG pipelines.
+
+Functions:
+    build_context: Converts retrieved LangChain documents into structured 
+    prompt-ready context block for the LLM.
+"""
 
 def build_context(docs):
     """Convert retrieved documents into a prompt ready context block"""

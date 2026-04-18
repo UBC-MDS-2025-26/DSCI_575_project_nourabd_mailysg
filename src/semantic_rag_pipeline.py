@@ -1,3 +1,18 @@
+"""
+Module that implements a semantic RAG pipeline
+for the Amazon video game product search assistant.
+
+Pipeline includes:
+    - FAISS semantic retriever
+    - context builder (src/context_builder.py)
+    - prompt template (src/prompts.py)
+    - LLM (llama-3.1-8b-instant) called using Groq API
+
+Functions:
+    - get_retriever: Returns a FAISS retriever for semantic search
+    - get_semantic_rag_chain: Returns the full semantic RAG pipeline
+"""
+
 import os
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq

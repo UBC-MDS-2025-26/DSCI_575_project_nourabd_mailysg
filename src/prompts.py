@@ -1,3 +1,7 @@
+"""
+A module for storing prompt templates for RAG pipelines.
+"""
+
 from langchain_core.prompts import ChatPromptTemplate
 
 prompt = ChatPromptTemplate.from_template("""
