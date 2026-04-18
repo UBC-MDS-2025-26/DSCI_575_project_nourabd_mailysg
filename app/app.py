@@ -143,6 +143,7 @@ with rag :
     # query input box
     rag_query = st.text_input("Search for a product...", placeholder="e.g. Single-player games suitable for children", key='rag')
 
+    # Hybrid RAG
     if rag_query:
         with st.spinner("Searching..."):
             vector_store = get_semantic()
@@ -152,9 +153,10 @@ with rag :
             df = top_k_to_df(rag_query, results, top_n=5)
             rag_results = hybrid_rag_pipeline(retriever, rag_query)
 
-            st.markdown(f"### LLM generated recommendations :")
-            with st.chat_message("assistant"):
-                st.markdown(rag_results)
+            with st.container(border=True):
+                st.markdown(f"### Assistant recommendations :")
+                with st.chat_message("assistant"):
+                    st.markdown(rag_results)
 
             with st.container(border=True):
                 st.markdown(f"**Top {len(df)} results for:** *{rag_query}*")
@@ -164,10 +166,8 @@ with rag :
                         col1, col2 = st.columns([3, 1])
                         with col1:
                             st.markdown(f"### {row['Product title'].title()}")
-                            st.markdown("**Review:**")
-                            st.write(row['Review'])
-                        with col2:
                             st.markdown(rating_to_stars(row['Rating']), unsafe_allow_html=True)
+                        with col2:
                             with st.container(border=True):
                                 st.markdown("**Rate the recommendation:**")
                                 col_up, col_down = st.columns(2)
