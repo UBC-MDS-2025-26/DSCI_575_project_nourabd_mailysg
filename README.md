@@ -10,7 +10,7 @@ This project builds an interactive web app through which users can interact with
 The dataset that is being used in this project is the Video Games category from the Amazon Reviews dataset, collected in 2023 by [McAuley Lab](https://cseweb.ucsd.edu/~jmcauley/). This dataset contains 2.8M user reviews and 137.2k items.
 It can be found and downloaded at the following address : [amazon-reviews-2023](https://amazon-reviews-2023.github.io)
 
-> **Note:** Data files are not included in this repository due to filesize constraints.
+> **Note:** Data files are not included in this repository due to file size constraints.
 > Please download them with the instructions below.
 
 ## Data Preprocessing
