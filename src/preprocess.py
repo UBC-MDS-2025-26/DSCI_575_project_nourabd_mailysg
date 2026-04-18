@@ -64,7 +64,7 @@ def process_user_reviews(user_reviews):
     
 
 def merge_data():
-    """Merge meta data and user dataframes, returns a given sample of the data."""
+    """Merge meta data and user dataframes, returns merged dataset."""
 
     # Load the data
     print('Loading user reviews ...')
