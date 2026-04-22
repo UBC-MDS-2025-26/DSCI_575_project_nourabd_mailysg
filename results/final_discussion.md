@@ -1,6 +1,13 @@
-# Final Milestone Discussion 
+# Final Discussion 
 
-## Experimenting with different LLM models:
+## Step 1: Improve Your Workflow
+
+### Dataset Scaling
+
+- Our workflow uses all unique video game products (129,039 unique products after preprocssing) from the Amazon Datset. We implemneted this in Milestone 2
+- We also added a sampling option for low RAM machines, see README for more instructions.
+
+### LLM Experiment
 
 **Models Compared:**
 - **Model 1 (from Milestone 2):** `llama-3.1-8b-instant` (Llama 3.1 8B by Meta, 8 billion parameters, accessed via Groq API)
@@ -8,7 +15,7 @@
 
 We chose to compare Qwen3-32B because it comes from a different company and model family than Llama, which allows us to compare how different model architectures perform. It is also much larger, with 32 Billion parameters compared to the oriignal Llama model with 8 billion, so we expect it to produce more high quality reasoning in its outputs.
 
-**Prompt:**
+**Prompt Used:**
 
 Both models were tested with identical retrieved context and the following prompt (same as Milestone 2 prompt):
 
