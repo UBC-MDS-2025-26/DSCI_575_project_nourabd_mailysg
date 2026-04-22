@@ -39,3 +39,15 @@ The Feirsh Switch Controller was recommended as the best match by both LLama and
 
 **Query 5: What gaming accessories would improve my setup under $50?**
 The Eureka Ergonomic Gaming Desk Setup Accessories Bundle ($29.99, 4.5/5) is communicated as the most suitable option by both models. Qwen lists many other alternatives but also flags them as having low ratings or missing price data. Similarly, Llama included the Enhance GXM3 Gaming Mouse despite its price being unavilable (same issue as previous query).
+
+**Key observations:**
+
+- Qwen model may need a different worded prompt so that its outputs are more concise and not always walking you through every step of its thinking, which is not suitable for a user search system that displays both LLM output and retrived products. The web interface would become too crowded with this approach. Additionally, the <think> tags are also not suitable for a user-facing app and may be confusing.
+- Qwen seems slightly better on more complex queries.
+- Llama was more concise in acknowledging limitations and recommending procuts. However, it could benefit from prompt adjustment, where instead of acknowleding limitations and still recommending products, the products with missing metadata are simply filtered out.
+- In terms of accuracy, Qwen is slightly better and more focused with its recommendations, but this is expected given it has many more parameters (32 billion).
+- For the parameter increase, the quality difference is marginal, they both esentially recommend the same products in most queries, whilst flagging the same issues where there is missing context/metadata.
+
+**Chosen Model:**
+
+Based on these results, we'll be keeping `llama-3.1-8b-instant` as the default model due to the very marginal increase in suitability amongst product recommendations. Qwen3-32B's was better at filtering out products with missing metadata in some of the queries but it's prose-heavy outputs are not suitable for our user-facing web app, where responses are displayed alongisde the retrieved products already. Llama's concise, structured format is more desirable in our case. However, we acknowledge that future improvements could include prompt adjustment to improve LLama's handling of proudcts with missing fields like price, so that it performs better on more complex queries. 
