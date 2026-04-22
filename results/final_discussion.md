@@ -35,7 +35,7 @@ To see both model outputs in detail on all 5 queries, naviagte to `notebooks/fin
 
 **Query 1: What Nintendo Switch games are good for young children?**
 
-Llama recommended Smart Boys Winter Wonderland, 51 Worldwide Games and Super Mario Maker 2, which are all suitable games for young children and are well-rated. However, Smart Boys Winter Wonderland is for Nintendo DS not Switch, which Llama missed and Qwen was able to identify in its reasoning. Because of this, Qwen correctly focused only on confirmed Switch titles (51 Worldwide Games and Super Mario Maker), making it more accurate than LLama. On the other hand, Llama's output is a lot more concise and user-friendly and it did still recommend other suitable switch games, despite that one mismatch.
+Llama recommended Smart Boys Winter Wonderland, 51 Worldwide Games and Super Mario Maker 2, which are all suitable games for young children and are well-rated. However, Smart Boys Winter Wonderland is for Nintendo DS not Switch, which Llama missed and Qwen was able to identify in its reasoning. Because of this, Qwen correctly focused only on confirmed Switch titles (51 Worldwide Games and Super Mario Maker), making it more accurate than LLama. On the other hand, Llama's output is a lot more concise and user-friendly and it did still recommend other suitable switch games, despite the one mismatch.
 
 **Query 2: Comfortable gaming headsets**
 
