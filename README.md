@@ -60,7 +60,7 @@ More information about field selection can be found in the [Data exploration and
 
 ### Dataset Size
 
-**Important Note**: The dataset is processed at the product level, all reviews for the same product are aggregated into a single row, so there are approximately 130K unique products after processing. As a result, we recommend running the workflow on a machine with a minimum of 16 GB RAM. The web app may crash or run slowly on machines with 8GB RAM due to the memory required to load both the FAISS and BM25 indexes simultaneously.
+**Important Note**: The dataset is processed at the product level, all reviews for the same product are aggregated into a single row, so there are approximately 130K unique products after processing. As a result, we recommend running the workflow on a machine with a minimum of 16 GB RAM. The web app may crash or run slowly on machines with 8GB RAM due to the memory required to load both the FAISS and BM25 indexes simultaneously. Alternatively, see section `Local Testing with a reduced Dataset` at the end of this page for instructions on how to run the workflow with a smaller sample of the dataset.
 
 ## RAG Workflow
 
@@ -197,3 +197,21 @@ The app has two modes:
 
 2. This should automatically open a new window with the web app in your browser.
 3. To stop the app, press `ctrl` + `C` in the terminal.
+
+### Local Testing with a Reduced Dataset: 
+This option is recommended for developers or users who wish to run the workflow and experiment with the app but have a low RAM machine (e.g. 8GB RAM). 
+
+To test the workflow on a smaller dataset, uncomment the function call that includes the `sample_size` argument 
+at the bottom of `src/preprocess.py`:
+
+```python
+merged_df = merge_data(sample_size=10000)
+```
+More instructions available in the script. 
+
+Then rerun the full workflow:
+```bash
+python src/preprocess.py
+python -m src.bm25
+python -m src.semantic
+```
