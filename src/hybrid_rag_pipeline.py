@@ -25,7 +25,7 @@ from langchain_groq import ChatGroq
 from langchain.agents import create_agent
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from src.prompts import prompt, agent_system_prompt
+from src.prompts import agent_prompt
 from src.bm25 import load
 from src.semantic import load_index
 from src.context_builder import build_context
@@ -53,8 +53,7 @@ def hybrid_rag_pipeline(retriever, query):
     # agent
     agent = create_agent(
             model=llm,
-            tools=[web_search],
-            system_prompt=agent_system_prompt
+            tools=[web_search]
             )
 
     # Pipeline
@@ -63,7 +62,7 @@ def hybrid_rag_pipeline(retriever, query):
             "context": retriever | build_context,
             "input": RunnablePassthrough()
         }
-        | prompt
+        | agent_prompt
         | agent
         | RunnableLambda(lambda x: x["messages"][-1].content)
         | StrOutputParser()
@@ -71,7 +70,7 @@ def hybrid_rag_pipeline(retriever, query):
     return rag_chain.invoke(query)
 
 # To run the pipeline uncomment the following lines:
-retriever = get_retriever()
-print(hybrid_rag_pipeline(retriever, 'single player game'))
+# retriever = get_retriever()
+# print(hybrid_rag_pipeline(retriever, 'single player game'))
 
 
