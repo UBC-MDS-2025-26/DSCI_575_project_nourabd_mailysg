@@ -72,3 +72,63 @@ Based on these results, we'll be keeping `llama-3.1-8b-instant` as the default m
 
 
 ## Step 4: Cloud Deployment Plan
+
+We would deploy the app on **AWS** in the following way:
+
+### 1. Data Storage
+
+**Raw data** (Video_Games.jsonl, meta_Video_Games.jsonl): 
+
+- Store in **Amazon S3** bucket
+- S3 is ideal for large data that will not be frequently accessed once the index files are built
+- Cost-effective and durable object storage for raw JSONL dumps like our raw files
+
+**Processed Data** (processed_data.parquet):
+
+- Store in S3 bucket in dedicated `procssed/` folder
+- Only required columns are loaded using parquet
+
+**Vector Index** (index.faiss and index.pkl):
+
+- Also Stored in S3 and loaded into EC2 local disk memory at app startup
+- FAISS requires full index in RAM for fast similarity search. Loading from EC2 instance's local disk is faster than reading from s3 on every user query.
+- Avoids rebuilding index on every deployment
+
+**BM25 Index** (bm25_index.pkl and retriever.pkl)
+- Stored in S3 as a pickle file and loaded into memory at startup
+
+Both indexes are cached in memory using Streamlit's `@st.cache_resource` to avoid reloading on every user query request.
+
+### 2. Compute
+
+**Where will the app run**?
+
+- Streamlit app would run on an **AWS EC2** instance 
+- We would use `r6i.xlarge` which offers 32GB RAM, more than enough to handle the FAISS and BM25 indexes simultaneously while accounting for other overhead RAM and potential python operation
+- By optimizing memory with this instance memory size, we ensure low-latency retrieval for users
+
+**How will we handle multiple users?**
+
+- To handle multiple concurrent users, we would deploy the app behind an **AWS Application Load Balancer** 
+- We would use **Auto-Scaling** so that we have additional EC2 instances running under high load
+- Each instance loads its own copy of the indexes from S3 at app startup, which will help multiple users run the workflow/query the app at the same time without interference
+
+**How will we handle LLM inference?**
+
+- In our case, we would continue using the **Groq API** for LLM inference rather than self-hosting a LLM model
+- This avoids the cost and complexity of running a GPU instance all the time
+- Groq API provides fast inference with a pay-per-use model, which is more cost-effective for a recommendation tool like this one that has  variable levels of traffic
+- Alternatively, if there is an issue of slow response times, we could self-host the model on **AWS SageMaker**
+
+### 3. Streaming/Updates
+
+**Incorporating New Products in Production**
+
+- For new product reviews, we would use an ETL job that runs every week, using **AWS Glue**
+- This would download new JSONL data from the Amazon reviews dataset, preprocess it and append new products to the processed parquet file 
+- This data would be updated in the parquet and continue being stored in AWS S3 bucket
+
+**Keeping our Pipleine Up-to-Date**
+
+- We would rebuild the FAISS and BM25 indexes from scratch on a weekly or monthly basis using an **AWS Batch** job
+- Once rebuilt, the new index files are uploaded to S3 and the running EC2 instances are restarted to load the updated indexes
