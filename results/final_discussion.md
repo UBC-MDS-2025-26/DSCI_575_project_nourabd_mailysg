@@ -3,8 +3,8 @@
 ## Experimenting with different LLM models:
 
 **Models Compared:**
-- **Model 1 (from Milestone 2):** `llama-3.1-8b-instant` (Llama 3.1 8B by Meta, accessed via Groq API)
-- **Model 2:** `qwen/qwen3-32b` (Qwen3 32B by Alibaba, accessed via Groq API)
+- **Model 1 (from Milestone 2):** `llama-3.1-8b-instant` (Llama 3.1 8B by Meta, 8 billion parameters, accessed via Groq API)
+- **Model 2:** `qwen/qwen3-32b` (Qwen3 32B by Alibaba, 32 billion parameters, accessed via Groq API)
 
 We chose to compare Qwen3-32B because it comes from a different company and model family than Llama, which allows us to compare how different model architectures perform. It is also much larger, with 32 Billion parameters compared to the oriignal Llama model with 8 billion, so we expect it to produce more high quality reasoning in its outputs.
 
@@ -54,6 +54,14 @@ The Eureka Ergonomic Gaming Desk Setup Accessories Bundle ($29.99, 4.5/5) is com
 - In terms of accuracy, Qwen is slightly better and more focused with its recommendations, but this is expected given it has many more parameters (32 billion).
 - For the parameter increase, the quality difference is marginal, they both esentially recommend the same products in most queries, whilst flagging the same issues where there is missing context/metadata.
 
-### Chosen Model
+### Chosen Model with Rationale:
 
 Based on these results, we'll be keeping `llama-3.1-8b-instant` as the default model due to the very marginal increase in suitability amongst product recommendations. Qwen3-32B's was better at filtering out products with missing metadata in some of the queries but it's prose-heavy outputs are not suitable for our user-facing web app, where responses are displayed alongisde the retrieved products already. Llama's concise, structured format is more desirable in our case. However, we acknowledge that future improvements could include prompt adjustment to improve LLama's handling of proudcts with missing fields like price, so that it performs better on more complex queries. 
+
+## Step 2: Additional Feature
+
+
+## Step 3: Improve Documentation and Code Quality
+
+
+## Step 4: Cloud Deployment Plan
