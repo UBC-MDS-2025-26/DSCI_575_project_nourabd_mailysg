@@ -45,7 +45,7 @@ Both models recommended similar products (afuntablue and huhd headsets). Qwen ag
 
 Both models recommended TrackMania Turbo as a good Xbox racing game. Llama also suggested The Need for Speed as an Option, but flagged that there is no Xbox version available, suggesting it for users who may have an alternative gaming platform. Qwen also flagged this but didn't recommend it, it's final recommendation only had TrackMania Turbo for Xbox One, so it performed better than Llama here, in terms of matching the user's query on racing games for Xbox. Llama was again more concise but less accurate. This is expected with the parameter difference between the models (8 billion vs 32 billion).
 
-**Query 4: Affordabe wireless controller with good battery life**
+**Query 4: Affordable wireless controller with good battery life**
 
 The Feirsh Switch Controller was recommended as the best match by both LLama and Qwen. Etpark Switch Wireless Pro Controller was also suggested by Llama even though its price is not listed, although reviews do praise its battery life, so not all aspects of the query were captured here by LLama. Qwen's reasoning showed that it didn't recommend EtPark because affordability was unclear, so it again did better in this aspect.
 
@@ -67,6 +67,77 @@ Based on these results, we'll be keeping `llama-3.1-8b-instant` as the default m
 
 ## Step 2: Additional Feature
 
+### Tool integration
+We decided to integrate a web search tool (Tavily API) to the hybrid RAG pipeline (see [src/hybrid_rag_pipeline.py](../src/hybrid_rag_pipeline.py)). To do this, we added an agent to the RAG pipeline that calls on the tool to get missing or up-to-date information about products it recommends (see [src/tools.py](../src/tools.py) for web search tool implementation).
+
+The prompt had to be carefully adjusted to ensure that the web search tool was used only to get supplementary information (e.g missing price, rating ...) or if the user explicitly requested up-to-date information :
+>You are a helpful Amazon video game product shopping assistant.
+>The context contains real Amazon product reviews and metadata (product title, rating, price, description etc.).
+>
+>- Use the context first before anything else
+>- Recommend specific products that match the user's query (AT MOST 3 products)
+>- Use web_search for additional details on products already in the context (e.g release year)
+>- ONLY recommend products from the web when the user explicitly uses words like "new", "latest", "recent"
+>- Support your recommendation with concise and relevant evidence from the reviews and ratings
+>- Only say you don't know if the context truly does not contain relevant information
+
+### Results
+**Query 1 : new release single player game**
+
+Response :
+>  The Defiant 
+>-  Price:  $59.99
+>-  Rating:  4.7/5
+>-  Release year:  2026
+>-  Why it matches:  The Defiant is a new release single player game that offers a gripping story and challenging gameplay.
+>
+> STALKER 2 Cost of Hope 
+>-  Price:  $59.99
+>-  Rating:  4.5/5
+>-  Release year:  2026
+>-  Why it matches:  STALKER 2 Cost of Hope is a new release single player game that offers a deep experience with a personalized story and challenging gameplay.
+>
+> Alan Wake 2 
+>-  Price:  $59.99
+>-  Rating:  4.5/5
+>-  Release year:  2025
+>-  Why it matches:  Alan Wake 2 is a new release single player game that offers a gripping story and devastatingly effective art style, making it one of the best single-player games of recent years.
+
+**Query 2 : pink wireless controller**
+
+Response :
+> Xbox 360 Wireless Controller - Pink 
+>-  Price:  $42.87
+>-  Rating:  4.0/5
+>-  Release year:  2007
+>-  Why it matches:  The product matches the user's query because it is a pink wireless controller for the Xbox 360, which is a type of gaming console that the user may be interested in. The product's price is also listed as $42.87, and it has a rating of 4.0 out of 5 stars.
+
+**Query 3 : recent single player games under 20$**
+
+Response :
+> Expedition 33 
+>-  Price:  $19.99
+>-  Rating:  4.5/5
+>-  Release year:  (2022)
+>-  Why it matches:  A single-player focused survival game with a strong narrative and engaging gameplay.
+>
+> Bloodborne 
+>-  Price:  $19.99
+>-  Rating:  5/5
+>-  Release year:  (2015)
+>-  Why it matches:  A challenging action RPG with a dark atmosphere and intense combat.
+>
+> RE4 remake 
+>-  Price:  $19.99
+>-  Rating:  4.5/5
+>-  Release year:  (2023)
+>-  Why it matches:  A re-imagining of the classic Resident Evil 4 game with updated graphics and gameplay.
+>
+> Sekiro (Note: This game is not under 20$ but I have to recommend it) 
+>-  Price:  $59.99
+>-  Rating:  4.5/5
+>-  Release year:  (2019)
+>-  Why it matches:  A challenging action-adventure game set in feudal Japan with a strong focus on stealth and strategy.
 
 ## Step 3: Improve Documentation and Code Quality
 
