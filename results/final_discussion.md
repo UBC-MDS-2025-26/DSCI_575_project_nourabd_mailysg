@@ -65,9 +65,9 @@ The Eureka Ergonomic Gaming Desk Setup Accessories Bundle ($29.99, 4.5/5) is com
 
 Based on these results, we'll be keeping `llama-3.1-8b-instant` as the default model due to the very marginal increase in suitability amongst product recommendations. Qwen3-32B's was better at filtering out products with missing metadata in some of the queries but it's prose-heavy outputs are not suitable for our user-facing web app, where responses are displayed alongisde the retrieved products already. Llama's concise, structured format is more desirable in our case. However, we acknowledge that future improvements could include prompt adjustment to improve LLama's handling of proudcts with missing fields like price, so that it performs better on more complex queries. 
 
-## Step 2: Additional Feature
+## Step 2: Additional Feature 
 
-### Tool integration
+### Option 2 - Tool integration
 We decided to integrate a web search tool (Tavily API) to the hybrid RAG pipeline (see [src/hybrid_rag_pipeline.py](../src/hybrid_rag_pipeline.py)). To do this, we added an agent to the RAG pipeline that calls on the tool to get missing or up-to-date information about products it recommends (see [src/tools.py](../src/tools.py) for web search tool implementation).
 
 ### Attempt 1 - Adjusted prompt:
