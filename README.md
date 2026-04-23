@@ -5,7 +5,7 @@
 This project builds an interactive web app through which users can interact with a video game product search assistant. The assistant implements three retrieval methods: BM25 keyword search, semantic search, and a hybrid RAG 
 (Retrieval-Augmented Generation) pipeline to retrieve and generate product recommendations from Amazon video game reviews and metadata.
 
-## Usage examples 
+## Usage example 
 Here is an example of the app for the query "Single player game suitable for children" :
 
 <img src="results/img/demo.gif" width=80% height=80%>
