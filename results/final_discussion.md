@@ -95,7 +95,7 @@ We would deploy the app on **AWS** in the following way:
 - FAISS requires a local file path and full index in RAM for fast similarity search. Loading once at startup is faster than reading from S3 on every query
 - Avoids rebuilding the index on every deployment
 
-**BM25 Index** (bm25_index.pkl and retriever.pkl)
+**BM25 Index** (bm25_index.pkl and retriever.pkl):
 - Stored in S3 as a pickle file and loaded into memory at startup
 
 Since each EC2 instance loads the indexes into RAM at startup and caches them with `@st.cache_resource`, the indexes persist in memory across all user sessions on that instance, which helps avoid having to reload the index from S3 everytime there is a user request.
