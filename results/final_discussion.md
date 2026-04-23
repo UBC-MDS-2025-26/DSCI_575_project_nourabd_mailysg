@@ -80,23 +80,24 @@ We would deploy the app on **AWS** in the following way:
 
 **Raw data** (Video_Games.jsonl, meta_Video_Games.jsonl): 
 
-- Store in **Amazon S3** bucket
+- Store in **Amazon S3** bucket (e.g. `s3://videogame-search/raw/`)
 - S3 is ideal for large data (our files are 500 MB and 2.6 GB) that will not be frequently accessed once the index files are built
 - They are only needed during preprocessing so S3 is cost-effective and an ideal object storage for raw JSONL dumps like ours
 
-**Processed Data** (processed_data.parquet):
+**Processed Data** (`processed_data.parquet` ~ 129K products after processing):
 
-- Store in S3 bucket in dedicated `processed/` folder
-- Only required columns are loaded using parquet
+- Store in S3 bucket in dedicated `processed/` folder `s3://videogame-search/processed/`
+- Parquet makes it so that only required columns are read into memory, which is also less computationally expensive
 
 **Vector Index** (index.faiss and index.pkl):
 
-- Stored in S3 and downloaded to EC2 local disk at startup, then loaded into RAM
+- Stored in S3 (`s3://videogame-search/indexes/faiss/`) and downloaded to EC2 local disk at startup, then loaded into RAM
 - FAISS requires a local file path and full index in RAM for fast similarity search. Loading once at startup is faster than reading from S3 on every query
 - Avoids rebuilding the index on every deployment
 
 **BM25 Index** (bm25_index.pkl and retriever.pkl):
-- Stored in S3 as a pickle file and loaded into memory at startup
+- Stored in S3 as a pickle file and loaded into memory at startup(`s3://videogame-search/indexes/bm25/`)
+- Storing both the raw BM25Okapi object and the LangChain BM25Retriever separately allows the app to use the retriever for hybrid RAG without rebuilding from the documents
 
 Since each EC2 instance loads the indexes into RAM at startup and caches them with `@st.cache_resource`, the indexes persist in memory across all user sessions on that instance, which helps avoid having to reload the index from S3 everytime there is a user request.
 
@@ -105,20 +106,19 @@ Since each EC2 instance loads the indexes into RAM at startup and caches them wi
 **Where will the app run**?
 
 - Streamlit app would run on an **AWS EC2** instance 
-- We would use `r6i.xlarge` which offers 32GB RAM, more than enough to handle the FAISS and BM25 indexes simultaneously while accounting for other overhead RAM and potential python operations
-- By optimizing memory with this instance memory size, we ensure low-latency retrieval for users
-- Port 8080 would be opened in the security group to allow public access
+- We would use `r6i.xlarge` which offers 32GB RAM, more than enough to handle the FAISS (198.2 MB for faiss & 2.26 GB for pkl) and BM25 indexes (4.87 MB for index & 2.75 GB for retriever) simultaneously while accounting for other overhead RAM and potential python operations
+- By optimizing memory with this instance size, we ensure low-latency retrieval for users
 
 **How will we handle multiple users?**
 
-- To handle multiple concurrent users, we would deploy the app behind an **AWS Application Load Balancer** 
+- To handle multiple concurrent users, we would deploy the app behind an **AWS Application Load Balancer**, which would distribute traffic across multiple EC2 instances.
 - We would use **Auto-Scaling** so that we have additional EC2 instances running under high load
 - Each instance loads its own copy of the indexes from S3 at app startup, which will help multiple users run the workflow/query the app at the same time without interference
 
 **How will we handle LLM inference?**
 
-- In our case, we would continue using the **Groq API** for LLM inference rather than self-hosting a LLM model
-- This avoids the cost and complexity of running a GPU instance all the time
+- In our case, we would continue using the **Groq API**(`llama-3.1-8b-instant`)for LLM inference rather than self-hosting a LLM model
+- This avoids the cost and complexity of running a GPU instance all the time, for a tool that is only used when a user queries
 - Groq API provides fast inference with a pay-per-use model, which is more cost-effective for a recommendation tool like this one that has  variable levels of traffic
 - Alternatively, if there is an issue of slow response times, we could self-host the model on **AWS SageMaker**
 
@@ -126,13 +126,15 @@ Since each EC2 instance loads the indexes into RAM at startup and caches them wi
 
 **Incorporating New Products in Production**
 
-- For new product reviews, we would use a Python ETL script on an EC2 instance that runs every week
-- This would download new JSONL data from the Amazon reviews dataset, preprocess it and append new products to the processed parquet file 
-- This data would be updated in the parquet and continue being stored in AWS S3 bucket
-- For large batches that make it hard for single EC2 to handle all the data, EMR with Spark would be used for distributed preprocessing.
+- For new product reviews, they would be ingested via a weekly **AWS Glue** ETL job that:
+    1. Downloads new JSONL files from the Amazon Reviews dataset to S3
+    2. Runs the preprocessing pipeline (`preprocess.py`) to update the parquet
+    3. Uploads the updated parquet to `s3://videogame-search/processed/`
+- For large batches that make it hard for a single EC2 to handle all the data, EMR with PySpark would be used for distributed preprocessing.
 
 **Keeping our Pipeline Up-to-Date**
 
-- We would rebuild the FAISS and BM25 indexes using the same EC2 instance on a weekly or monthly schedule
-- Once rebuilt, the new index files are uploaded to S3 and the running EC2 instances are restarted to load the updated indexes
-- Since product catalogs don't change by the minute, periodic batch re-indexing on a weekly basis is adequate and more cost-effective than dynamic real-time index updates.
+- We would rebuild the FAISS and BM25 indexes on a weekly schedule via an EC2 instance, by running `semantic.py` and `bm25.py` on the latest parquet from S3
+- Once rebuilt, new index files are uploaded to S3 under a versioned path (e.g. s3://videogame-search/indexes/2026-04-22/)
+- EC2 instances are restarted to load the updated indexes
+- Since product catalogs don't change by the minute, periodic batch re-indexing on a weekly basis is adequate and more cost-effective than dynamic real-time index updates
