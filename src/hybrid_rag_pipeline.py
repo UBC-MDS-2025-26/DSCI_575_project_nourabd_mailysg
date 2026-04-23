@@ -7,6 +7,7 @@ Pipeline includes:
     - context builder (src/context_builder.py)
     - prompt template (src/prompts.py)
     - LLM (llama-3.1-8b-instant) called using Groq API
+    - agent that uses the LLM and a web search tool (src/tools.py)
 
 Functions:
     - get_retriever: Returns a hybrid retriever for hybrid search
@@ -18,9 +19,10 @@ import os
 import sys
 from dotenv import load_dotenv
 
-from langchain_core.runnables import RunnablePassthrough
+from langchain_core.runnables import RunnablePassthrough, RunnableLambda
 from langchain_core.output_parsers import StrOutputParser
 from langchain_groq import ChatGroq
+from langchain.agents import create_agent
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from src.prompts import prompt
@@ -28,6 +30,7 @@ from src.bm25 import load
 from src.semantic import load_index
 from src.context_builder import build_context
 from src.hybrid import hybrid_retriever
+from src.tools import web_search
 
 
 def get_retriever(path=''):
@@ -38,13 +41,25 @@ def get_retriever(path=''):
 
 
 def hybrid_rag_pipeline(retriever, query):
-    """Return hybrid RAG pipeline"""
-    # LLM
-    load_dotenv()
+    """Return hybrid RAG pipeline that can call on a web search tool"""
 
+    load_dotenv()
+    
+    # LLM
     llm = ChatGroq(
         model="llama-3.1-8b-instant",
         api_key=os.getenv("GROQ_API_KEY"))
+    
+    # agent
+    agent = create_agent(
+            model=llm,
+            tools=[web_search],
+            system_prompt="""
+            You are a helpful Amazon video game product shopping assistant.
+            ONLY use the web_search tool when the user explicitly asks for 
+            current or up-to-date information.
+            """
+            )
 
     # Pipeline
     rag_chain = (
@@ -53,11 +68,14 @@ def hybrid_rag_pipeline(retriever, query):
             "input": RunnablePassthrough()
         }
         | prompt
-        | llm
+        | agent
+        | RunnableLambda(lambda x: x["messages"][-1].content)
         | StrOutputParser()
     )
     return rag_chain.invoke(query)
 
 # To run the pipeline uncomment the following lines:
 # retriever = get_retriever()
-# print(hybrid_rag_pipeline(retriever, 'single-player battle game'))
+# print(hybrid_rag_pipeline(retriever, 'single player game'))
+
+

@@ -19,3 +19,4 @@ dependencies:
     - streamlit
     - langchain-groq
     - python-dotenv
+    - tavily-python
