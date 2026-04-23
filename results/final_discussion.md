@@ -70,7 +70,10 @@ Based on these results, we'll be keeping `llama-3.1-8b-instant` as the default m
 ### Tool integration
 We decided to integrate a web search tool (Tavily API) to the hybrid RAG pipeline (see [src/hybrid_rag_pipeline.py](../src/hybrid_rag_pipeline.py)). To do this, we added an agent to the RAG pipeline that calls on the tool to get missing or up-to-date information about products it recommends (see [src/tools.py](../src/tools.py) for web search tool implementation).
 
-The prompt had to be carefully adjusted to ensure that the web search tool was used only to get supplementary information (e.g missing price, rating ...) or if the user explicitly requested up-to-date information :
+### Attempt 1 - Adjusted prompt:
+We first tried to let the agent decide when to use the web tool by only adding the tool calling conditions to the prompt (no added logic to the [`web_search`](../src/tools.py) function).
+>Prompt used :
+>
 >You are a helpful Amazon video game product shopping assistant.
 >The context contains real Amazon product reviews and metadata (product title, rating, price, description etc.).
 >
@@ -81,10 +84,10 @@ The prompt had to be carefully adjusted to ensure that the web search tool was u
 >- Support your recommendation with concise and relevant evidence from the reviews and ratings
 >- Only say you don't know if the context truly does not contain relevant information
 
-### Results
-**Query 1 : new release single player game**
+#### **Query 1 : new release single player game**
 
-Response :
+>*Response:*
+>
 >  The Defiant 
 >-  Price:  $59.99
 >-  Rating:  4.7/5
@@ -103,18 +106,24 @@ Response :
 >-  Release year:  2025
 >-  Why it matches:  Alan Wake 2 is a new release single player game that offers a gripping story and devastatingly effective art style, making it one of the best single-player games of recent years.
 
-**Query 2 : pink wireless controller**
+*Discussion:* All 3 recommended products meet the user's query requirements (new release and single player). However some product information seems to have been hallucinated. For example, the release date and price given for the Defiant video game are false (the game has not been released yet and no price is listed). Similarly, the release date for the third result is not accurate (the real release date is 2023). 
 
-Response :
+#### **Query 2 : pink wireless controller**
+
+>*Response:*
+>
 > Xbox 360 Wireless Controller - Pink 
 >-  Price:  $42.87
 >-  Rating:  4.0/5
 >-  Release year:  2007
 >-  Why it matches:  The product matches the user's query because it is a pink wireless controller for the Xbox 360, which is a type of gaming console that the user may be interested in. The product's price is also listed as $42.87, and it has a rating of 4.0 out of 5 stars.
 
-**Query 3 : recent single player games under 20$**
+*Discussion:* The recommended product matches the user query requirements and the real product can be found here (can be found here [https://www.amazon.ca/Xbox-360-Wireless-Controller-Pink/dp/B000VSDON6](https://www.amazon.ca/Xbox-360-Wireless-Controller-Pink/dp/B000VSDON6)).
 
-Response :
+#### **Query 3 : recent single player games under 20$**
+
+>*Response:*
+>
 > Expedition 33 
 >-  Price:  $19.99
 >-  Rating:  4.5/5
@@ -138,6 +147,61 @@ Response :
 >-  Rating:  4.5/5
 >-  Release year:  (2019)
 >-  Why it matches:  A challenging action-adventure game set in feudal Japan with a strong focus on stealth and strategy.
+
+*Discussion:* The response contains 4 product recommendations when the prompt specifically mentions at most 3 should be added and the extra recommendation does not match the user's price requirement. The user query also specifies they are looking for recent games but neither Sekiro (2019) or Bloodborne (2015) can be considered as recent.
+
+#### Overall Results
+Overall, we have that the pipeline works better on simple queries (query 2) than more complex queries with many constraints (like price limits or recency constrains). We also have that the agent either hallucinates (gives false information about products) or does not follow all the instructions set out in the prompt. Hence, letting the agent decide when to call the tool is not the best solution.
+
+### Attempt 2 - Logic for tool calling:
+We then decided added in a condition to the [`web_search`](../src/tools.py) function that only calls the web search API if the user explicitly asks for up-to-date information (words like "new", "latest", "recent"). We also pass an enriched query (`'best video game {query} 2026'`)to the web search to add more context as well as limit the domains that can be searched to ones related to video game products ([metacritic.com](https://www.metacritic.com), [ign.com](https://www.ign.com/ca), [store.steampowered.com](https://store.steampowered.com), [amazon.com](https://www.amazon.com)). The original prompt was used here (from Milestone 2).
+
+#### **Query 1 : new release single player game**
+
+>*Response:*
+>
+>  Based on the context, I would recommend the following new release single player game:
+>
+> * **Darwin's Paradox** - April 2 - (PS5, Switch 2, Xbox, PC)
+> * **People of Note** - April 7 - (PS5, Switch 2, Xbox, PC)
+> * **ChainStaff** - April 8 - (PS5, Switch, Xbox, PC)
+>
+>These games seem to fit the user's query for a new release single player game, with no mention of multiplayer or co-op gameplay.
+
+*Discussion:* All 3 recommended products meet the user's query requirements (new release and single player). The details about the products that are given are also accurate. 
+
+#### **Query 2 : pink wireless controller**
+
+>*Response:*
+>
+> Based on the context, I would recommend the following products that match the user's query:
+>
+>1. **Xbox 360 Wireless Controller Pink**: This product has a high rating of 4.0/5, is priced at $42.87, and is described as a "high-performance wireless gaming" controller >with a 30-foot range and up to 40 hours of life. Many reviewers have praised its quality, durability, and aesthetics, with one reviewer stating it's "worth it" and another >saying it's the "perfect controller for gamer girls."
+>2. **Ralan Pink Wireless Controller**: This product has a high rating of 4.6/5, is priced at $29.99, and is described as a "super cute controller" with colorful LED lighting >and a smooth feel. Reviewers have praised its quality, feel, and versatility, with one reviewer stating it's the "best feel out of most gaming controllers" they've bought.
+>
+>Both of these products are wireless controllers that match the user's query, and they have high ratings and positive reviews from customers.
+
+*Discussion:* Both the products are good matches for the user query.
+
+#### **Query 3 : recent single player games under 20$**
+
+>*Response:*
+>
+>Based on the context provided, I would recommend the following recent single player games under $20:
+>
+>* Championship Manager 2008 UK (price: $5 or less)
+>* Medieval Crafter: Blacksmith (mentioned in the web_search results)
+>* Masters of Albion (mentioned in the web_search results)
+>* Tides of Tomorrow (mentioned in the web_search results)
+>* DRAGON BALL FighterZ - DAIMA Pack (mentioned in the web_search results, although the price is not specified)
+>
+>These games meet the criteria of being recent single player games and are available for under $20. However, please note that the prices may vary depending on the platform and availability.
+
+*Discussion:* Not all the query requirements (recent, under 20$, single player) are met by the products. For example, the Tides of Tomorrow and Masters of Albion (from the web search) are above the price cap of 20$. Similarly, the Championship Manager is not a recent game. However, both DRAGON BALL FighterZ - DAIMA Pack and Medieval Crafter: Blacksmith are great matches for the query.
+
+#### Overall Results
+Overall, we have that the pipeline quite well on simple queries (Query 2) and manages to give information that is more reliable than previously. While it does handle simple constraints quite well (Query 1), when we start combining multiple requirements, the recommendations start suffering (Query 3).
+
 
 ## Step 3: Improve Documentation and Code Quality
 
