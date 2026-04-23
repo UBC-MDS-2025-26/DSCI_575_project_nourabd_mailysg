@@ -81,32 +81,33 @@ We would deploy the app on **AWS** in the following way:
 **Raw data** (Video_Games.jsonl, meta_Video_Games.jsonl): 
 
 - Store in **Amazon S3** bucket
-- S3 is ideal for large data that will not be frequently accessed once the index files are built
-- Cost-effective and durable object storage for raw JSONL dumps like our raw files
+- S3 is ideal for large data (our files are 500 MB and 2.6 GB) that will not be frequently accessed once the index files are built
+- They are only needed during preprocessing so S3 is cost-effective and an ideal object storage for raw JSONL dumps like ours
 
 **Processed Data** (processed_data.parquet):
 
-- Store in S3 bucket in dedicated `procssed/` folder
+- Store in S3 bucket in dedicated `processed/` folder
 - Only required columns are loaded using parquet
 
 **Vector Index** (index.faiss and index.pkl):
 
-- Also Stored in S3 and loaded into EC2 local disk memory at app startup
-- FAISS requires full index in RAM for fast similarity search. Loading from EC2 instance's local disk is faster than reading from s3 on every user query.
-- Avoids rebuilding index on every deployment
+- Stored in S3 and downloaded to EC2 local disk at startup, then loaded into RAM
+- FAISS requires a local file path and full index in RAM for fast similarity search. Loading once at startup is faster than reading from S3 on every query
+- Avoids rebuilding the index on every deployment
 
 **BM25 Index** (bm25_index.pkl and retriever.pkl)
 - Stored in S3 as a pickle file and loaded into memory at startup
 
-Both indexes are cached in memory using Streamlit's `@st.cache_resource` to avoid reloading on every user query request.
+Since each EC2 instance loads the indexes into RAM at startup and caches them with `@st.cache_resource`, the indexes persist in memory across all user sessions on that instance, which helps avoid having to reload the index from S3 everytime there is a user request.
 
 ### 2. Compute
 
 **Where will the app run**?
 
 - Streamlit app would run on an **AWS EC2** instance 
-- We would use `r6i.xlarge` which offers 32GB RAM, more than enough to handle the FAISS and BM25 indexes simultaneously while accounting for other overhead RAM and potential python operation
+- We would use `r6i.xlarge` which offers 32GB RAM, more than enough to handle the FAISS and BM25 indexes simultaneously while accounting for other overhead RAM and potential python operations
 - By optimizing memory with this instance memory size, we ensure low-latency retrieval for users
+- Port 8080 would be opened in the security group to allow public access
 
 **How will we handle multiple users?**
 
@@ -125,11 +126,13 @@ Both indexes are cached in memory using Streamlit's `@st.cache_resource` to avoi
 
 **Incorporating New Products in Production**
 
-- For new product reviews, we would use an ETL job that runs every week, using **AWS Glue**
+- For new product reviews, we would use a Python ETL script on an EC2 instance that runs every week
 - This would download new JSONL data from the Amazon reviews dataset, preprocess it and append new products to the processed parquet file 
 - This data would be updated in the parquet and continue being stored in AWS S3 bucket
+- For large batches that make it hard for single EC2 to handle all the data, EMR with Spark would be used for distributed preprocessing.
 
-**Keeping our Pipleine Up-to-Date**
+**Keeping our Pipeline Up-to-Date**
 
-- We would rebuild the FAISS and BM25 indexes from scratch on a weekly or monthly basis using an **AWS Batch** job
+- We would rebuild the FAISS and BM25 indexes using the same EC2 instance on a weekly or monthly schedule
 - Once rebuilt, the new index files are uploaded to S3 and the running EC2 instances are restarted to load the updated indexes
+- Since product catalogs don't change by the minute, periodic batch re-indexing on a weekly basis is adequate and more cost-effective than dynamic real-time index updates.
