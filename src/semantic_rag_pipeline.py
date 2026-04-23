@@ -22,8 +22,8 @@ from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from src.context_builder import build_context
 from src.prompts import prompt
+from src.config import FAISS_INDEX
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) #finding project root
 
 load_dotenv()
 
@@ -36,7 +36,7 @@ llm = ChatGroq(
 embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
 vectorstore = FAISS.load_local(
-    os.path.join(PROJECT_ROOT, 'data/processed/faiss_index'),
+    FAISS_INDEX,
     embeddings,
     allow_dangerous_deserialization=True
 )
