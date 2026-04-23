@@ -112,6 +112,9 @@ The hybrid RAG pipeline combines BM25 keyword search and semantic search using L
 > - `src/context_builder.py`: Context building function
 > - `src/prompts.py`: Prompt template
 
+#### Web search tool
+The web search tool uses the Tavily API to search the web for information about products. Logic was added so that the agent only searched the web when the user was looking for up-to-date information (the query uses words like "new", "latest", "recent"). More information about the integration can be found in the [final_discussion](results/final_discussion.md) file.
+
 ## Retrieval Workflows
 
 ### BM25 Search 
@@ -160,10 +163,10 @@ To set up the workflow, follow the instructions below :
 
 4. Put the files `Video_Games.jsonl` and `meta_Video_Games.jsonl` downloaded above in the `data/raw` folder 
 
-5. Create a `.env` file in the project root and add the folloeing keys
+5. Create a `.env` file in the project root and add the following keys
 - **Groq API key**:
-
 > A free API key can be obtained at [console.groq.com](https://console.groq.com). Follow the steps to generate a free-tier API key. Please note that since it is a free tier token, rate limit constraints apply.
+
 - **Tavily API key**:
 > A free API key can be obtained at [docs.tavily.com](https://docs.tavily.com/welcome). Follow the steps to generate a free-tier API key. Please note that since it is a free tier token, rate limit constraints apply.
 The `.env` file should contain: ```GROQ_API_KEY=your_key_here``` and ```TAVILY_API_KEY=your_key_here```

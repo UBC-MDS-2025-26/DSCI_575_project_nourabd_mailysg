@@ -70,6 +70,17 @@ Based on these results, we'll be keeping `llama-3.1-8b-instant` as the default m
 
 
 ## Step 3: Improve Documentation and Code Quality
+### Documentation Update
+- Added instructions for creating Tavily API ([README](../README.md#setting-up))
+- Added a usage example of the app ([README](../README.md#usage-example))
+- Added description of web search implementation ([README](../README.md#web-search-tool))
+- Added workflow descriptions ([README](../README.md#rag-workflow))
+- Added instructions for local testing ([README](../README.md#local-testing-with-sample-of-dataset))
 
+### Code Quality Changes
+- Remove temporary files (`requirements.txt` and `retrieval_metrics.py`)
+- Added a [config](src/config.py) file and removed hardcoded paths
+- All functions include a docstrings (already implemented in previous Milestones)
+- Updated [environment.yml](environment.yml) with new packages (tavily-python)
 
 ## Step 4: Cloud Deployment Plan
