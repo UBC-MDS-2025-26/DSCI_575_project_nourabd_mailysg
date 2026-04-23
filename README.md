@@ -92,15 +92,18 @@ flowchart LR
     VS -->|w2=0.6| RR
     RR --> AP[Augmented Prompt\nbuild_context]
     Q --> AP
+    Q --> WS[Web search tool\nTavily]
     AP --> LLM[LLM\nLlama 3.1 8B via Groq]
+    LLM --> WS
     LLM --> O[Output\nProduct Recommendation]
 ```
-The hybrid RAG pipeline combines BM25 keyword search and semantic search using LangChain's `EnsembleRetriever` with Reciprocal Rank Fusion (RRF) reranking. BM25 is weighted at 40% and semantic search at 60% because we found that that semantic search alone, tends to perform better on a mix of different user queries (see milestone 1 discussion notebook for more details). These reranked results are passed to the LLM to generate product recommendations.
+The hybrid RAG pipeline combines BM25 keyword search and semantic search using LangChain's `EnsembleRetriever` with Reciprocal Rank Fusion (RRF) reranking. BM25 is weighted at 40% and semantic search at 60% because we found that that semantic search alone, tends to perform better on a mix of different user queries (see milestone 1 discussion notebook for more details). These reranked results are passed to an agent that uses the retrieved documents and a web search tool to recommend products.
 
 > **Note:** The RAG pipeline is implemented across separate files rather than a  single `src/rag_pipeline.py`. We did this for better modularity and readability of our scripts:
 > - `src/semantic_rag_pipeline.py`: Semantic RAG pipeline (FAISS retriever + LLM)
 > - `src/hybrid_rag_pipeline.py`: Hybrid RAG pipeline (BM25 + FAISS + LLM)
 > - `src/hybrid.py`: Hybrid retriever definition (EnsembleRetriever with RRF)
+> - `src/tools.py` : Web search tool (Tavily)
 > - `src/context_builder.py`: Context building function
 > - `src/prompts.py`: Prompt template
 
@@ -152,11 +155,13 @@ To set up the workflow, follow the instructions below :
 
 4. Put the files `Video_Games.jsonl` and `meta_Video_Games.jsonl` downloaded above in the `data/raw` folder 
 
-5. Create a `.env` file in the project root and add your **Groq API key**:
+5. Create a `.env` file in the project root and add the folloeing keys
+- **Groq API key**:
 
 > A free API key can be obtained at [console.groq.com](https://console.groq.com). Follow the steps to generate a free-tier API key. Please note that since it is a free tier token, rate limit constraints apply.
-
-The `.env` file should contain: ```GROQ_API_KEY=your_key_here```
+- **Tavily API key**:
+> A free API key can be obtained at [docs.tavily.com](https://docs.tavily.com/welcome). Follow the steps to generate a free-tier API key. Please note that since it is a free tier token, rate limit constraints apply.
+The `.env` file should contain: ```GROQ_API_KEY=your_key_here``` and ```TAVILY_API_KEY=your_key_here```
 
 ### Running the workflow
 To run the workflow, follow the instructions below :
@@ -181,7 +186,10 @@ To run the workflow, follow the instructions below :
 
 The results of the semantic search and BM25 search workflows can be found in the [results](results) folder. The scripts should also produce 2 folders ```faiss_index``` and ```bm25_index``` with the retriever, pkl and index files that will be used to run the app. 
 
-To view example query results from the Hybrid RAG worflow, please refer to the data exploration [notebook](https://github.com/UBC-MDS/DSCI_575_project_nourabd_mailysg/blob/main/notebooks/milestone2_rag.ipynb). Otherwise, try the RAG system out by querying the app. See below instructions.
+To view example query results from the Hybrid RAG workflow (without web search tool), please refer to the data exploration [notebook](https://github.com/UBC-MDS/DSCI_575_project_nourabd_mailysg/blob/main/notebooks/milestone2_rag.ipynb). 
+
+To view example query results from the Hybrid RAG workflow (with web search tool), please refer to the data exploration [notebook](https://github.com/UBC-MDS/DSCI_575_project_nourabd_mailysg/blob/main/notebooks/final_exploration.ipynb). 
+Otherwise, try the RAG system out by querying the app. See below instructions.
 
 ### Running the App
 To run the web app, follow the instructions below :
@@ -197,6 +205,7 @@ The app has two modes:
 
 2. This should automatically open a new window with the web app in your browser.
 3. To stop the app, press `ctrl` + `C` in the terminal.
+
 
 ### Local Testing with Sample of Dataset: 
 This option is recommended for developers or users who wish to run the workflow and experiment with the app but have a low RAM machine (e.g. 8GB RAM). 
@@ -215,3 +224,7 @@ python src/preprocess.py
 python -m src.bm25
 python -m src.semantic
 ```
+
+### Usage examples 
+Here is an example of the app for the query "Single player game suitable for children" :
+![Demo animation](results/img/demo.gif)
