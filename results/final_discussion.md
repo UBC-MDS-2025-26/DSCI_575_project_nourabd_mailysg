@@ -150,7 +150,7 @@ We first tried to let the agent decide when to use the web tool by only adding t
 
 *Discussion:* The response contains 4 product recommendations when the prompt specifically mentions at most 3 should be added and the extra recommendation does not match the user's price requirement. The user query also specifies they are looking for recent games but neither Sekiro (2019) or Bloodborne (2015) can be considered as recent.
 
-#### Overall Results
+#### Overall Attempt Results
 Overall, we have that the pipeline works better on simple queries (query 2) than more complex queries with many constraints (like price limits or recency constrains). We also have that the agent either hallucinates (gives false information about products) or does not follow all the instructions set out in the prompt. Hence, letting the agent decide when to call the tool is not the best solution.
 
 ### Attempt 2 - Logic for tool calling:
@@ -199,9 +199,11 @@ We then decided added in a condition to the [`web_search`](../src/tools.py) func
 
 *Discussion:* Not all the query requirements (recent, under 20$, single player) are met by the products. For example, the Tides of Tomorrow and Masters of Albion (from the web search) are above the price cap of 20$. Similarly, the Championship Manager is not a recent game. However, both DRAGON BALL FighterZ - DAIMA Pack and Medieval Crafter: Blacksmith are great matches for the query.
 
-#### Overall Results
+#### Overall Attempt Results
 Overall, we have that the pipeline quite well on simple queries (Query 2) and manages to give information that is more reliable than previously. While it does handle simple constraints quite well (Query 1), when we start combining multiple requirements, the recommendations start suffering (Query 3).
 
+### Conclusion
+We have that the web search tool added to the pipeline allows users to access up-to-date information about products. This can be especially important for video games since it is quite common for users to be more interested in the latest releases.
 
 ## Step 3: Improve Documentation and Code Quality
 
