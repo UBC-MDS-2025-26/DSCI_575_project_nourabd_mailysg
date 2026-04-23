@@ -63,8 +63,10 @@ def process_user_reviews(user_reviews):
     return user_reviews.reset_index()
     
 
-def merge_data():
-    """Merge meta data and user dataframes, returns merged dataset."""
+def merge_data(sample_size = None):
+    """Merge meta data and user dataframes, returns merged dataset. 
+       Use sample_size for local testing on low RAM machines.
+    """
 
     # Load the data
     print('Loading user reviews ...')
@@ -84,6 +86,10 @@ def merge_data():
                   on='parent_asin', 
                   how='inner')
     print('Dataframes merged!')
+
+    if sample_size is not None:
+        merged = merged.head(sample_size)
+        print(f"Using sample of {sample_size} products")
 
     return merged
 
@@ -127,8 +133,15 @@ def create_corpus(merged):
     merged.to_parquet('data/processed/processed_data.parquet', engine='pyarrow', compression='snappy')
     print(f'Preprocessing done!')
 
-# To adjust amount of data used, change sample_size below
+# Option 1: Use full dataset (130K products). Comment out if using sample_size parameter below
 merged_df = merge_data()
+
+#Option 2:
+#if you are running this locally on a low RAM machine, uncomment the below cell to test the workflow 
+#with a smaller sample of data. Feel free to adjust sample_size value. Make sure to comment out above line
+
+#merged_df = merge_data(sample_size=10000)
+
 create_corpus(merged_df)
 
 
