@@ -7,6 +7,10 @@ import faiss
 from src.save_to_df import results_to_df
 from src.tokenizer import create_documents
 from src.config import PARQUET_DATA, FAISS_INDEX, SEMANTIC_RESULTS
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from src.save_to_df import results_to_df
+from src.tokenizer import create_documents
 
 
 def load_documents(parquet_path):
