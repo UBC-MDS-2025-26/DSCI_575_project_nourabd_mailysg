@@ -45,21 +45,24 @@ def hybrid_rag_pipeline(retriever, query):
     """Return hybrid RAG pipeline that can call on a web search tool"""
 
     load_dotenv()
+
+    trigger_words = ["new", "latest", "recent", "release"]
+    requires_search = any(word in query.lower() for word in trigger_words)
     
     # LLM
     llm = ChatGroq(
         model="llama-3.1-8b-instant",
         api_key=os.getenv("GROQ_API_KEY"))
     
+    if requires_search:
+        llm = llm.bind_tools(tools=[web_search], tool_choice="auto")
+    else:
+        llm = llm.bind_tools(tools=[web_search], tool_choice="none")
     # agent
     agent = create_agent(
             model=llm,
             tools=[web_search],
-            system_prompt="""
-            You are a helpful Amazon video game product shopping assistant.
-            ONLY use the web_search tool when the user explicitly asks for 
-            current or up-to-date information.
-            """
+            system_prompt="You are a helpful Amazon video game product shopping assistant.You have access to ONLY ONE tool called exactly: web_search "
             )
 
     # Pipeline
