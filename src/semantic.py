@@ -4,10 +4,12 @@ from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.docstore.in_memory import InMemoryDocstore
 import faiss
-import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from src.save_to_df import results_to_df
 from src.tokenizer import create_documents
+from src.config import PARQUET_DATA, FAISS_INDEX, SEMANTIC_RESULTS
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 
 def load_documents(parquet_path):
@@ -86,14 +88,14 @@ if __name__ == "__main__":
         "best wireless gaming headset for ps5 with good microphone under $100",
         "good single player story game for a beginner who just got their first playstation under $50"
     ]
-
+    
     # build and save index (run once)
     # comment out these lines once you have generated faiss_index data 
-    docs = load_documents('data/processed/processed_data.parquet')
+    docs = load_documents(PARQUET_DATA)
     vector_store, _ = build_index(docs)
-    save_index(vector_store, 'data/processed/faiss_index')
+    save_index(vector_store, FAISS_INDEX)
 
-    vector_store = load_index('data/processed/faiss_index')
+    vector_store = load_index(FAISS_INDEX)
 
     # run queries and save results
     all_results = []
@@ -104,5 +106,5 @@ if __name__ == "__main__":
 
     # save to csv
     final_df = pd.concat(all_results)
-    final_df.to_csv('results/semantic_results.csv', index=False)
+    final_df.to_csv(SEMANTIC_RESULTS, index=False)
     print("10 query results saved to results/semantic_results.csv")

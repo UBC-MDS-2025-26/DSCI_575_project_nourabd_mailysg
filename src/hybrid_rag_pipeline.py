@@ -31,12 +31,13 @@ from src.semantic import load_index
 from src.context_builder import build_context
 from src.hybrid import hybrid_retriever
 from src.tools import web_search
+from src.config import FAISS_INDEX, BM25_INDEX
 
 
-def get_retriever(path=''):
+def get_retriever():
     """Return hybrid retriever"""
-    vector_retriever = load_index(path+'data/processed/faiss_index') 
-    bm25_retriever = load(path+'data/processed/bm25_index', 'retriever')
+    vector_retriever = load_index(FAISS_INDEX) 
+    bm25_retriever = load(BM25_INDEX, 'retriever')
     return hybrid_retriever(vector_retriever, bm25_retriever)
 
 
