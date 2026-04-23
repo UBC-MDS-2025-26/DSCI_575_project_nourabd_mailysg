@@ -227,4 +227,5 @@ python -m src.semantic
 
 ### Usage examples 
 Here is an example of the app for the query "Single player game suitable for children" :
-![Demo animation](results/img/demo.gif)
+
+<img src="results/img/demo.gif" width=50% height=50%>
