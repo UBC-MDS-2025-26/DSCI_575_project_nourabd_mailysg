@@ -161,6 +161,9 @@ The `.env` file should contain: ```GROQ_API_KEY=your_key_here```
 ### Running the workflow
 To run the workflow, follow the instructions below :
 
+> A note on paths:
+> All paths are defined in the [config.py](src/config.py) file
+
 1. Create the preprocessed corpus :
 
     ```{bash}
