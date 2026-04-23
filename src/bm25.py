@@ -20,6 +20,7 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from src.tokenizer import create_documents, tokenize
 from src.save_to_df import results_to_df
+from src.config import PARQUET_DATA, BM25_INDEX, BM25_RESULTS
 
 
 def load_documents(parquet_path):
@@ -113,19 +114,19 @@ if __name__ == "__main__":
     ]
 
     # Load documents
-    docs = load_documents('data/processed/processed_data.parquet')
+    docs = load_documents(PARQUET_DATA)
 
     # build and save index and retriever(run once)
     # comment out these lines once you have generated bm25_index and retriver data
     retriever = bm25_retriever(docs, k=1)
-    save(retriever, 'data/processed/bm25_index', 'retriever')
+    save(retriever, BM25_INDEX, 'retriever')
 
     bm25_index = build_index(retriever)
-    save(bm25_index, 'data/processed/bm25_index', 'bm25_index')
+    save(bm25_index, BM25_INDEX, 'bm25_index')
 
     # Load index
-    bm25_index = load('data/processed/bm25_index', 'bm25_index')
-    retriever = load('data/processed/bm25_index', 'retriever')
+    bm25_index = load(BM25_INDEX, 'bm25_index')
+    retriever = load(BM25_INDEX, 'retriever')
 
     # run queries and save results
     all_results = []
@@ -139,5 +140,5 @@ if __name__ == "__main__":
 
     # Save to csv
     final_df = pd.concat(all_results)
-    final_df.to_csv('results/bm25_results.csv', index=False)
+    final_df.to_csv(BM25_RESULTS, index=False)
     print("10 query results saved to results/bm25_results.csv")

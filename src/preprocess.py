@@ -13,6 +13,10 @@ Functions:
 import re
 import json
 import pandas as pd
+import os
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from src.config import USER_DATA, META_DATA, PARQUET_DATA
 
 
 def load_data(name, file):
@@ -25,6 +29,7 @@ def load_data(name, file):
             record_list.append(record)
     print(f'{name} loaded!')
     return record_list
+
 
 def process_meta_data(meta_data):
     """Add and edit meta data fields"""
@@ -63,16 +68,16 @@ def process_user_reviews(user_reviews):
     return user_reviews.reset_index()
     
 
-def merge_data(sample_size = None):
+def merge_data(sample_size=None):
     """Merge meta data and user dataframes, returns merged dataset. 
        Use sample_size for local testing on low RAM machines.
     """
 
     # Load the data
     print('Loading user reviews ...')
-    user_reviews = pd.DataFrame(load_data('User reviews','data/raw/Video_Games.jsonl'))
+    user_reviews = pd.DataFrame(load_data('User reviews', USER_DATA))
     print('Loading meta data ...')
-    meta_data = pd.DataFrame(load_data('Meta data','data/raw/meta_Video_Games.jsonl'))
+    meta_data = pd.DataFrame(load_data('Meta data', META_DATA))
 
     # Process the data
     proc_meta_data = process_meta_data(meta_data)
@@ -80,11 +85,11 @@ def merge_data(sample_size = None):
 
     print('Merging dataframes...')
 
-    #Merge dataframes
-    merged = pd.merge(proc_meta_data, 
-                  proc_user_reviews, 
-                  on='parent_asin', 
-                  how='inner')
+    # Merge dataframes
+    merged = pd.merge(proc_meta_data,
+                      proc_user_reviews,
+                      on='parent_asin',
+                      how='inner')
     print('Dataframes merged!')
 
     if sample_size is not None:
@@ -92,7 +97,6 @@ def merge_data(sample_size = None):
         print(f"Using sample of {sample_size} products")
 
     return merged
-
 
 
 def preprocess(text):
@@ -104,14 +108,14 @@ def preprocess(text):
         - removes all elements that aren't lowercase letters, numbers or whitespace
         - if the given text is a list, transforms it into a string
     """
-    if type(text) == list :
+    if type(text) == list:
         processed_text = ''
-        for element in text :
+        for element in text:
             element = element.lower()
             element = re.sub(r"[^a-z0-9\s]", "", element)
             processed_text += element + ' '
         return processed_text
-    elif type(text) == str :
+    elif type(text) == str:
         text = text.lower()
         text = re.sub(r"[^a-z0-9\s]", "", text)
         return text
@@ -130,7 +134,7 @@ def create_corpus(merged):
         count +=1
     
     # Save corpus to parquet
-    merged.to_parquet('data/processed/processed_data.parquet', engine='pyarrow', compression='snappy')
+    merged.to_parquet(PARQUET_DATA, engine='pyarrow', compression='snappy')
     print(f'Preprocessing done!')
 
 # Option 1: Use full dataset (130K products). Comment out if using sample_size parameter below

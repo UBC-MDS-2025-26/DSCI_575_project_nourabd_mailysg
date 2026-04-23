@@ -174,6 +174,8 @@ The `.env` file should contain: ```GROQ_API_KEY=your_key_here``` and ```TAVILY_A
 ### Running the workflow
 To run the workflow, follow the instructions below :
 
+> All file paths used in the workflow have been defined in the [config.py](src/config.py) file.
+
 1. Create the preprocessed corpus :
 
     ```{bash}
