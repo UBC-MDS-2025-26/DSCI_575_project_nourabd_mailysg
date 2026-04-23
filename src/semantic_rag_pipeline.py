@@ -12,14 +12,17 @@ Functions:
     - get_retriever: Returns a FAISS retriever for semantic search
     - get_semantic_rag_chain: Returns the full semantic RAG pipeline
 """
-
 import os
+import sys
+
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from src.context_builder import build_context
 from src.prompts import prompt
 
