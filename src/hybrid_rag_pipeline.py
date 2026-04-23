@@ -25,7 +25,7 @@ from langchain_groq import ChatGroq
 from langchain.agents import create_agent
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from src.prompts import agent_prompt
+from src.prompts import prompt
 from src.bm25 import load
 from src.semantic import load_index
 from src.context_builder import build_context
@@ -53,7 +53,12 @@ def hybrid_rag_pipeline(retriever, query):
     # agent
     agent = create_agent(
             model=llm,
-            tools=[web_search]
+            tools=[web_search],
+            system_prompt="""
+            You are a helpful Amazon video game product shopping assistant.
+            ONLY use the web_search tool when the user explicitly asks for 
+            current or up-to-date information.
+            """
             )
 
     # Pipeline
@@ -62,7 +67,7 @@ def hybrid_rag_pipeline(retriever, query):
             "context": retriever | build_context,
             "input": RunnablePassthrough()
         }
-        | agent_prompt
+        | prompt
         | agent
         | RunnableLambda(lambda x: x["messages"][-1].content)
         | StrOutputParser()

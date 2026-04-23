@@ -7,20 +7,16 @@ from tavily import TavilyClient
 from langchain.tools import tool
 from dotenv import load_dotenv
 
+load_dotenv()
 
 @tool
 def web_search(query, max_results=3):
-    """ONLY use this to get find missing information (price, release date) for a product
-    that already exists in the context. ONLY recommend a product from the web if the user's 
-    query explicitly requests up-to-date information .
+    """ONLY use this tool when the user query contains words like 
+    "new", "latest" or "recent".
     """
-    load_dotenv()
-    tavily_client = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
-
-    results = tavily_client.search(query, max_results=max_results)
-    snippets = [r["content"] for r in results.get("results", [])]
-
-    return "\n".join(snippets)
-
-
-
+    if any(word in query.lower() for word in ["new", "latest", "recent"]):
+        tavily_client = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
+        enriched_query = f'best video game {query} 2026'
+        results = tavily_client.search(enriched_query, max_results=max_results, include_domains=["metacritic.com", "ign.com", "store.steampowered.com", "amazon.com"])
+        snippets = [r["content"] for r in results.get("results", [])]
+        return "\n".join(snippets)
